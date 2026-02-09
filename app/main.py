@@ -12,6 +12,30 @@ app = Flask(__name__,
 app.secret_key = Config.SECRET_KEY
 
 
+@app.route('/api/predict', methods=['POST'])
+def api_predict():
+    """
+    API endpoint for direct image prediction.
+    Returns JSON response instead of rendering a template.
+    """
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image file provided'}), 400
+    
+    file = request.files['image']
+    
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+        
+    if not allowed_file(file.filename):
+        return jsonify({'error': 'Invalid file type. Allowed: jpg, jpeg, png'}), 400
+
+    try:
+        result = get_prediction(file)
+        return jsonify(result)
+        
+    except ModelAPIError as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/')
 def index():
     """Home page with upload interface."""
