@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Pneumonia Detection - Upload X-Ray{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Chest X-Ray Analysis</h1>
+    <p class="hero-subtitle">Upload a chest X-ray image to detect signs of pneumonia using AI analysis</p>
+</div>
+
+<div class="disclaimer-banner">
+    <svg class="disclaimer-icon" viewBox="0 0 24 24" width="20" height="20">
+        <path fill="currentColor"
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+    </svg>
+    <span>For educational and research purposes only. Not for clinical diagnosis.</span>
+</div>
+
+<div class="upload-section">
+    <form id="upload-form" action="{{ url_for('analyze') }}" method="POST" enctype="multipart/form-data">
+        <div class="upload-zone" id="upload-zone">
+            <div class="upload-content" id="upload-content">
+                <svg class="upload-icon" viewBox="0 0 24 24" width="48" height="48">
+                    <path fill="currentColor"
+                        d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+                </svg>
+                <p class="upload-text">Drag and drop your X-ray image here</p>
+                <p class="upload-subtext">or click to browse files</p>
+                <p class="upload-formats">Supported formats: JPG, PNG (max 10MB)</p>
+            </div>
+
+            <div class="preview-content hidden" id="preview-content">
+                <img id="preview-image" src="" alt="Preview">
+                <p class="preview-filename" id="preview-filename"></p>
+                <button type="button" class="btn-clear" id="clear-btn">Choose different image</button>
+            </div>
+
+            <input type="file" id="file-input" name="image" accept=".jpg,.jpeg,.png" hidden>
+        </div>
+
+        <div class="upload-error hidden" id="upload-error"></div>
+
+        <button type="submit" class="btn-analyze" id="analyze-btn" disabled>
+            <span class="btn-text">Analyze X-Ray</span>
+            <span class="btn-loading hidden">
+                <span class="spinner"></span>
+                Analyzing...
+            </span>
+        </button>
+    </form>
+</div>
+
+<section class="info-section">
+    <h2>How It Works</h2>
+    <div class="steps">
+        <div class="step">
+            <div class="step-number">1</div>
+            <h3>Upload</h3>
+            <p>Select a chest X-ray image in JPG or PNG format</p>
+        </div>
+        <div class="step">
+            <div class="step-number">2</div>
+            <h3>Analyze</h3>
+            <p>Our AI model processes the image to detect patterns</p>
+        </div>
+        <div class="step">
+            <div class="step-number">3</div>
+            <h3>Results</h3>
+            <p>View the prediction with confidence score</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
