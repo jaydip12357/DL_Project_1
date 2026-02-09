@@ -45,16 +45,16 @@ def get_prediction(image_file):
     try:
         # Reset file pointer in case it was read before
         image_file.seek(0)
+        image_data = image_file.read()
         
-        files = {'image': (image_file.filename, image_file, image_file.content_type)}
         headers = {}
-        
         if Config.MODEL_API_KEY:
             headers['Authorization'] = f'Bearer {Config.MODEL_API_KEY}'
         
+        # Hugging Face Inference API expects binary body for image tasks
         resp = requests.post(
             Config.MODEL_API_URL,
-            files=files,
+            data=image_data,
             headers=headers,
             timeout=Config.API_TIMEOUT_SECONDS
         )
@@ -68,13 +68,32 @@ def get_prediction(image_file):
                 msg = f'API returned status {resp.status_code}'
             raise ModelAPIError(msg)
         
+        # Hugging Face Image Classification returns a list of dicts:
+        # [{'label': 'tabby, tabby cat', 'score': 0.98}, ...]
         data = resp.json()
         
-        # Validate response has required fields
-        if 'prediction' not in data or 'confidence' not in data:
-            raise ModelAPIError("Invalid response format from model API")
+        if not isinstance(data, list) or not data:
+             # Handle case where model might still be loading
+             if isinstance(data, dict) and 'error' in data:
+                 raise ModelAPIError(f"Model Error: {data['error']}")
+             raise ModelAPIError("Invalid response format from Hugging Face API")
+
+        # Parse HF response to match our app's expected format
+        top_result = data[0]
+        prediction = top_result.get('label', 'Unknown')
+        confidence = top_result.get('score', 0.0)
         
-        return data
+        # Convert list of scores to probabilities dict
+        probabilities = {item['label']: item['score'] for item in data[:5]}
+        
+        return {
+            "prediction": prediction,
+            "confidence": confidence,
+            "probabilities": probabilities,
+            "processing_time_ms": int(resp.elapsed.total_seconds() * 1000),
+            "model_version": "HF-ResNet50", # Placeholder
+            "heatmap": None # HF API doesn't return heatmaps by default
+        }
         
     except requests.Timeout:
         raise ModelAPIError("Analysis is taking longer than expected. Please try again.")

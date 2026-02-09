@@ -1,73 +1,64 @@
-{% extends "base.html" %}
-
-{% block title %}Pneumonia Detection - Upload X-Ray{% endblock %}
-
-{% block content %}
-<div class="hero">
-    <h1>Chest X-Ray Analysis</h1>
-    <p class="hero-subtitle">Upload a chest X-ray image to detect signs of pneumonia using AI analysis</p>
-</div>
-
-<div class="disclaimer-banner">
-    <svg class="disclaimer-icon" viewBox="0 0 24 24" width="20" height="20">
-        <path fill="currentColor"
-            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-    </svg>
-    <span>For educational and research purposes only. Not for clinical diagnosis.</span>
-</div>
-
-<div class="upload-section">
-    <form id="upload-form" action="{{ url_for('analyze') }}" method="POST" enctype="multipart/form-data">
-        <div class="upload-zone" id="upload-zone">
-            <div class="upload-content" id="upload-content">
-                <svg class="upload-icon" viewBox="0 0 24 24" width="48" height="48">
-                    <path fill="currentColor"
-                        d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pneumonia Detection AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
                 </svg>
-                <p class="upload-text">Drag and drop your X-ray image here</p>
-                <p class="upload-subtext">or click to browse files</p>
-                <p class="upload-formats">Supported formats: JPG, PNG (max 10MB)</p>
+                <span>MediScan AI</span>
             </div>
+            <h1>Chest X-Ray Analysis</h1>
+            <p class="subtitle">Upload a chest X-ray image to detect signs of pneumonia.</p>
+        </header>
 
-            <div class="preview-content hidden" id="preview-content">
-                <img id="preview-image" src="" alt="Preview">
-                <p class="preview-filename" id="preview-filename"></p>
-                <button type="button" class="btn-clear" id="clear-btn">Choose different image</button>
-            </div>
+        <main class="upload-section">
+            <form action="{{ url_for('analyze') }}" method="post" enctype="multipart/form-data" id="upload-form">
+                <div class="drop-zone" id="drop-zone">
+                    <div class="drop-zone-content">
+                        <div class="icon-upload">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                        </div>
+                        <span class="drop-zone-prompt">Drag & Drop X-Ray image here</span>
+                        <span class="drop-zone-sub">or</span>
+                        <button type="button" class="btn-select" onclick="document.getElementById('file-input').click()">
+                            Browse Files
+                        </button>
+                        <input type="file" name="image" id="file-input" accept=".jpg,.jpeg,.png" hidden>
+                        <p class="file-info" id="file-info"></p>
+                    </div>
+                </div>
 
-            <input type="file" id="file-input" name="image" accept=".jpg,.jpeg,.png" hidden>
-        </div>
+                <div class="actions">
+                    <button type="submit" class="btn-primary" id="analyze-btn" disabled>
+                        Analyze Image
+                    </button>
+                </div>
+            </form>
+        </main>
 
-        <div class="upload-error hidden" id="upload-error"></div>
-
-        <button type="submit" class="btn-analyze" id="analyze-btn" disabled>
-            <span class="btn-text">Analyze X-Ray</span>
-            <span class="btn-loading hidden">
-                <span class="spinner"></span>
-                Analyzing...
-            </span>
-        </button>
-    </form>
-</div>
-
-<section class="info-section">
-    <h2>How It Works</h2>
-    <div class="steps">
-        <div class="step">
-            <div class="step-number">1</div>
-            <h3>Upload</h3>
-            <p>Select a chest X-ray image in JPG or PNG format</p>
-        </div>
-        <div class="step">
-            <div class="step-number">2</div>
-            <h3>Analyze</h3>
-            <p>Our AI model processes the image to detect patterns</p>
-        </div>
-        <div class="step">
-            <div class="step-number">3</div>
-            <h3>Results</h3>
-            <p>View the prediction with confidence score</p>
-        </div>
+        <footer class="app-footer">
+            <p>Powered by AI • <a href="https://huggingface.co/nickmuchi/vit-finetuned-chest-xray-pneumonia" target="_blank">ViT Pneumonia Model</a></p>
+        </footer>
     </div>
-</section>
-{% endblock %}
+    
+    <div id="loading-overlay" class="hidden">
+        <div class="spinner"></div>
+        <p>Analyzing X-Ray image...</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

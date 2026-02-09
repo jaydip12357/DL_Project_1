@@ -7,7 +7,7 @@ load_dotenv()
 class Config:
     """Application configuration loaded from environment variables."""
     
-    MODEL_API_URL = os.getenv('MODEL_API_URL', '')
+    MODEL_API_URL = os.getenv('MODEL_API_URL', 'https://api-inference.huggingface.co/models/nickmuchi/vit-finetuned-chest-xray-pneumonia')
     MODEL_API_HEALTH_URL = os.getenv('MODEL_API_HEALTH_URL', '')
     MODEL_API_KEY = os.getenv('MODEL_API_KEY', '')
     
