@@ -53,3 +53,10 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Datasets (Too large for GitHub)
+chest_xray/
+data/
+
+# Models (Optional: Uncomment if you don't want to push models)
+# models/
