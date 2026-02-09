@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Results - Pneumonia Detection{% endblock %}
+
+{% block content %}
+<div class="results-header">
+    <h1>Analysis Results</h1>
+    <p class="results-timestamp">Analyzed at {{ analyzed_at }}</p>
+</div>
+
+<div class="results-grid">
+    <div class="result-card image-card">
+        <h2>Original X-Ray</h2>
+        <div class="image-container">
+            <img src="data:{{ original_mimetype }};base64,{{ original_image }}" alt="Uploaded X-Ray">
+        </div>
+        <p class="image-filename">{{ original_filename }}</p>
+    </div>
+
+    {% if heatmap %}
+    <div class="result-card image-card">
+        <h2>Analysis Heatmap</h2>
+        <div class="image-container">
+            <img src="data:image/png;base64,{{ heatmap }}" alt="Analysis Heatmap">
+        </div>
+        <p class="heatmap-info">Highlighted areas indicate regions of interest</p>
+    </div>
+    {% endif %}
+</div>
+
+<div
+    class="prediction-card {% if prediction == 'PNEUMONIA' %}prediction-pneumonia{% else %}prediction-normal{% endif %}">
+    <div class="prediction-header">
+        <span class="prediction-label">Prediction</span>
+        <span class="prediction-value">{{ prediction }}</span>
+    </div>
+
+    <div class="confidence-section">
+        <div class="confidence-header">
+            <span>Confidence</span>
+            <span class="confidence-value">{{ (confidence * 100) | round(1) }}%</span>
+        </div>
+        <div class="confidence-bar">
+            <div class="confidence-fill" style="width: {{ confidence * 100 }}%"></div>
+        </div>
+    </div>
+
+    {% if probabilities %}
+    <div class="probabilities">
+        <h3>Class Probabilities</h3>
+        <div class="probability-row">
+            <span class="prob-label">Normal</span>
+            <div class="prob-bar-container">
+                <div class="prob-bar prob-normal" style="width: {{ (probabilities.get('NORMAL', 0) * 100) }}%"></div>
+            </div>
+            <span class="prob-value">{{ (probabilities.get('NORMAL', 0) * 100) | round(1) }}%</span>
+        </div>
+        <div class="probability-row">
+            <span class="prob-label">Pneumonia</span>
+            <div class="prob-bar-container">
+                <div class="prob-bar prob-pneumonia" style="width: {{ (probabilities.get('PNEUMONIA', 0) * 100) }}%">
+                </div>
+            </div>
+            <span class="prob-value">{{ (probabilities.get('PNEUMONIA', 0) * 100) | round(1) }}%</span>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div class="results-meta">
+    {% if processing_time_ms %}
+    <span class="meta-item">Processing time: {{ processing_time_ms }}ms</span>
+    {% endif %}
+    {% if model_version %}
+    <span class="meta-item">Model version: {{ model_version }}</span>
+    {% endif %}
+</div>
+
+<div class="disclaimer-banner results-disclaimer">
+    <svg class="disclaimer-icon" viewBox="0 0 24 24" width="20" height="20">
+        <path fill="currentColor"
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+    </svg>
+    <span>This result is for educational purposes only. Please consult a healthcare professional for medical
+        advice.</span>
+</div>
+
+<div class="results-actions">
+    <a href="{{ url_for('index') }}" class="btn-analyze">Analyze Another Image</a>
+</div>
+{% endblock %}
