@@ -1,91 +1,176 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Result - PneumoScan AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .result-container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        .result-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+            margin-top: 2rem;
+        }
 
-{% block title %}Analysis Results - Pneumonia Detection{% endblock %}
+        @media (max-width: 640px) {
+            .result-layout {
+                grid-template-columns: 1fr;
+            }
+        }
 
-{% block content %}
-<div class="results-header">
-    <h1>Analysis Results</h1>
-    <p class="results-timestamp">Analyzed at {{ analyzed_at }}</p>
-</div>
+        .image-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
 
-<div class="results-grid">
-    <div class="result-card image-card">
-        <h2>Original X-Ray</h2>
-        <div class="image-container">
-            <img src="data:{{ original_mimetype }};base64,{{ original_image }}" alt="Uploaded X-Ray">
-        </div>
-        <p class="image-filename">{{ original_filename }}</p>
-    </div>
+        .result-image {
+            width: 100%;
+            border-radius: 0.5rem;
+            display: block;
+        }
 
-    {% if heatmap %}
-    <div class="result-card image-card">
-        <h2>Analysis Heatmap</h2>
-        <div class="image-container">
-            <img src="data:image/png;base64,{{ heatmap }}" alt="Analysis Heatmap">
-        </div>
-        <p class="heatmap-info">Highlighted areas indicate regions of interest</p>
-    </div>
-    {% endif %}
-</div>
+        .analysis-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
 
-<div
-    class="prediction-card {% if prediction == 'PNEUMONIA' %}prediction-pneumonia{% else %}prediction-normal{% endif %}">
-    <div class="prediction-header">
-        <span class="prediction-label">Prediction</span>
-        <span class="prediction-value">{{ prediction }}</span>
-    </div>
+        .score-large {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1;
+            margin: 1rem 0;
+        }
 
-    <div class="confidence-section">
-        <div class="confidence-header">
-            <span>Confidence</span>
-            <span class="confidence-value">{{ (confidence * 100) | round(1) }}%</span>
-        </div>
-        <div class="confidence-bar">
-            <div class="confidence-fill" style="width: {{ confidence * 100 }}%"></div>
-        </div>
-    </div>
+        .score-label {
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.05em;
+        }
 
-    {% if probabilities %}
-    <div class="probabilities">
-        <h3>Class Probabilities</h3>
-        <div class="probability-row">
-            <span class="prob-label">Normal</span>
-            <div class="prob-bar-container">
-                <div class="prob-bar prob-normal" style="width: {{ (probabilities.get('NORMAL', 0) * 100) }}%"></div>
+        .meta-info {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .meta-item h4 {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin: 0 0 0.25rem 0;
+            text-transform: uppercase;
+        }
+
+        .meta-item p {
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 0;
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="result-container">
+        <header style="margin-bottom: 1rem;">
+            <div class="logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                </svg>
+                <span>PneumoScan AI</span>
             </div>
-            <span class="prob-value">{{ (probabilities.get('NORMAL', 0) * 100) | round(1) }}%</span>
-        </div>
-        <div class="probability-row">
-            <span class="prob-label">Pneumonia</span>
-            <div class="prob-bar-container">
-                <div class="prob-bar prob-pneumonia" style="width: {{ (probabilities.get('PNEUMONIA', 0) * 100) }}%">
+        </header>
+
+        <div class="result-layout">
+            <!-- Left: Image -->
+            <div class="image-card">
+                {% if original_image %}
+                    <img src="data:{{ original_mimetype }};base64,{{ original_image }}" alt="Uploaded X-Ray" class="result-image">
+                {% else %}
+                    <div style="padding: 2rem; text-align: center; background: #f1f5f9; border-radius: 0.5rem;">No image available</div>
+                {% endif %}
+                <p style="margin-top: 0.5rem; text-align: center; color: var(--text-secondary); font-size: 0.875rem;">
+                    {{ original_filename }}
+                </p>
+            </div>
+
+            <!-- Right: Analysis -->
+            <div class="analysis-card">
+                <span class="score-label">AI Prediction</span>
+                
+                {% if prediction == 'PNEUMONIA' %}
+                    <div class="prediction-badge badge-pneumonia" style="margin-top: 0.5rem;">Positive</div>
+                    <div class="score-large" style="color: var(--danger-color);">Pneumonia</div>
+                {% else %}
+                    <div class="prediction-badge badge-normal" style="margin-top: 0.5rem;">Negative</div>
+                    <div class="score-large" style="color: var(--success-color);">Normal</div>
+                {% endif %}
+
+                <div style="margin-top: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 500;">Confidence Score</span>
+                        <span style="font-weight: 700;">{{ "%.1f"|format(confidence * 100) }}%</span>
+                    </div>
+                    <div class="confidence-bar-bg">
+                        <div class="confidence-bar-fill" style="width: 0%;" id="conf-bar"></div>
+                    </div>
                 </div>
+
+                <div class="meta-info">
+                    <div class="meta-item">
+                        <h4>Processing Time</h4>
+                        <p>{{ processing_time_ms }} ms</p>
+                    </div>
+                    <div class="meta-item">
+                        <h4>Analyzed At</h4>
+                        <p>{{ analyzed_at.split(' ')[1] }}</p>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('index') }}" class="btn-primary" style="margin-top: 2rem; text-decoration: none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12" />
+                        <path d="M3 3v9h9" />
+                    </svg>
+                    Analyze Another Image
+                </a>
             </div>
-            <span class="prob-value">{{ (probabilities.get('PNEUMONIA', 0) * 100) | round(1) }}%</span>
         </div>
     </div>
-    {% endif %}
-</div>
 
-<div class="results-meta">
-    {% if processing_time_ms %}
-    <span class="meta-item">Processing time: {{ processing_time_ms }}ms</span>
-    {% endif %}
-    {% if model_version %}
-    <span class="meta-item">Model version: {{ model_version }}</span>
-    {% endif %}
-</div>
-
-<div class="disclaimer-banner results-disclaimer">
-    <svg class="disclaimer-icon" viewBox="0 0 24 24" width="20" height="20">
-        <path fill="currentColor"
-            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-    </svg>
-    <span>This result is for educational purposes only. Please consult a healthcare professional for medical
-        advice.</span>
-</div>
-
-<div class="results-actions">
-    <a href="{{ url_for('index') }}" class="btn-analyze">Analyze Another Image</a>
-</div>
-{% endblock %}
+    <script>
+        // Animate confidence bar
+        setTimeout(() => {
+            const bar = document.getElementById('conf-bar');
+            const confidence = {{ confidence }};
+            const isPneumonia = "{{ prediction }}" === "PNEUMONIA";
+            
+            bar.style.width = (confidence * 100) + "%";
+            
+            if (isPneumonia) {
+                bar.style.backgroundColor = "#ef4444"; // Red for Pneumonia
+            } else {
+                bar.style.backgroundColor = "#10b981"; // Green for Normal
+            }
+        }, 100);
+    </script>
+</body>
+</html>

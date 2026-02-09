@@ -3,62 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pneumonia Detection AI</title>
+    <title>PneumoScan AI - Chest X-Ray Analysis</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <header class="app-header">
-            <div class="logo">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                </svg>
-                <span>MediScan AI</span>
-            </div>
-            <h1>Chest X-Ray Analysis</h1>
-            <p class="subtitle">Upload a chest X-ray image to detect signs of pneumonia.</p>
-        </header>
+        <div class="app-card">
+            <header class="app-header">
+                <div class="logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg>
+                    <span>PneumoScan AI</span>
+                </div>
+                <h1>Chest X-Ray Analysis</h1>
+                <p class="subtitle">Upload a chest X-ray image to detect signs of pneumonia using advanced AI.</p>
+            </header>
 
-        <main class="upload-section">
-            <form action="{{ url_for('analyze') }}" method="post" enctype="multipart/form-data" id="upload-form">
-                <div class="drop-zone" id="drop-zone">
-                    <div class="drop-zone-content">
-                        <div class="icon-upload">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="17 8 12 3 7 8"/>
-                                <line x1="12" y1="3" x2="12" y2="15"/>
-                            </svg>
+            <main class="upload-section">
+                <form action="{{ url_for('analyze') }}" method="post" enctype="multipart/form-data" id="upload-form">
+                    
+                    <div class="upload-area">
+                        <div class="drop-zone" id="drop-zone">
+                            <div class="drop-zone-content">
+                                <div class="icon-upload">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="17 8 12 3 7 8"/>
+                                        <line x1="12" y1="3" x2="12" y2="15"/>
+                                    </svg>
+                                </div>
+                                <span class="drop-zone-text">Drag & Drop X-Ray image here</span>
+                                <span class="drop-zone-sub">or</span>
+                                <button type="button" class="btn-select" onclick="document.getElementById('file-input').click()">
+                                    Browse Files
+                                </button>
+                                <input type="file" name="image" id="file-input" accept=".jpg,.jpeg,.png" hidden onchange="previewImage(this)">
+                            </div>
                         </div>
-                        <span class="drop-zone-prompt">Drag & Drop X-Ray image here</span>
-                        <span class="drop-zone-sub">or</span>
-                        <button type="button" class="btn-select" onclick="document.getElementById('file-input').click()">
-                            Browse Files
-                        </button>
-                        <input type="file" name="image" id="file-input" accept=".jpg,.jpeg,.png" hidden>
-                        <p class="file-info" id="file-info"></p>
+
+                        <!-- Image Preview Area -->
+                        <div id="image-preview-container" class="image-preview-container hidden">
+                            <img id="image-preview" src="#" alt="Preview" class="image-preview">
+                            <button type="button" class="remove-btn" onclick="removeImage()">×</button>
+                            <p id="file-name" class="file-info"></p>
+                        </div>
                     </div>
-                </div>
 
-                <div class="actions">
-                    <button type="submit" class="btn-primary" id="analyze-btn" disabled>
-                        Analyze Image
-                    </button>
-                </div>
-            </form>
-        </main>
+                    <div class="actions">
+                        <button type="submit" class="btn-primary" id="analyze-btn" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                            Analyze Image
+                        </button>
+                    </div>
+                </form>
+            </main>
+        </div>
 
-        <footer class="app-footer">
-            <p>Powered by AI • <a href="https://huggingface.co/nickmuchi/vit-finetuned-chest-xray-pneumonia" target="_blank">ViT Pneumonia Model</a></p>
+        <footer class="app-footer" style="margin-top: 2rem; text-align: center; color: #64748b; font-size: 0.875rem;">
+            <p>Powered by AI • <a href="https://huggingface.co/models" target="_blank" style="color: #2563eb; text-decoration: none;">ViT Model</a></p>
         </footer>
     </div>
     
     <div id="loading-overlay" class="hidden">
         <div class="spinner"></div>
-        <p>Analyzing X-Ray image...</p>
+        <p style="margin-top: 1rem; font-weight: 500; color: #1e293b;">Analyzing X-Ray image...</p>
+        <p style="font-size: 0.875rem; color: #64748b;">This may take a few seconds.</p>
     </div>
 
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const previewContainer = document.getElementById('image-preview-container');
+        const previewImageElement = document.getElementById('image-preview');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const uploadForm = document.getElementById('upload-form');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const dropZoneContent = document.querySelector('.drop-zone-content');
+
+        // Drag & Drop handlers
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                previewImage(fileInput);
+            }
+        });
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    previewImageElement.src = e.target.result;
+                    previewContainer.classList.remove('hidden');
+                    previewContainer.style.display = 'block'; // Ensure display
+                    dropZone.style.display = 'none'; // Hide dropzone
+                    analyzeBtn.disabled = false;
+                    document.getElementById('file-name').textContent = input.files[0].name;
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function removeImage() {
+            fileInput.value = '';
+            previewContainer.classList.add('hidden');
+            previewContainer.style.display = 'none';
+            dropZone.style.display = 'block'; // Show dropzone again
+            analyzeBtn.disabled = true;
+        }
+
+        uploadForm.addEventListener('submit', (e) => {
+            // e.preventDefault(); // Don't prevent default, let form submit naturally
+            loadingOverlay.classList.remove('hidden');
+            loadingOverlay.style.display = 'flex';
+        });
+    </script>
 </body>
 </html>
