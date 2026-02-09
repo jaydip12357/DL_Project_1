@@ -73,13 +73,14 @@ def analyze():
         session['probabilities'] = result.get('probabilities', {})
         session['processing_time_ms'] = result.get('processing_time_ms')
         session['model_version'] = result.get('model_version')
-        session['heatmap'] = result.get('heatmap')  # Base64 encoded if present
+        # session['heatmap'] = result.get('heatmap')  # Base64 encoded if present
         session['analyzed_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
         # Save original image as base64 for display
-        file.seek(0)
-        import base64
-        session['original_image'] = base64.b64encode(file.read()).decode('utf-8')
+        # FIX: Do not store large image in session cookie to avoid cookie overflow
+        # file.seek(0)
+        # import base64
+        # session['original_image'] = base64.b64encode(file.read()).decode('utf-8')
         session['original_filename'] = file.filename
         session['original_mimetype'] = file.content_type or 'image/jpeg'
         
