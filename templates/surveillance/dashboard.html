@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surveillance Dashboard - MediAlert</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .dashboard-header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+        }
+        .dashboard-header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2.5rem;
+        }
+        .dashboard-header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        .metrics-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .metric-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .metric-label {
+            color: #64748b;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+        .metric-value {
+            color: #1e3a5f;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        .metric-change {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        .metric-change.up {
+            color: #dc2626;
+        }
+        .metric-change.down {
+            color: #059669;
+        }
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .card h2 {
+            color: #1e3a5f;
+            margin: 0 0 1rem 0;
+            font-size: 1.25rem;
+        }
+        .heatmap-placeholder {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, #dbeafe 0%, #d1fae5 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0369a1;
+            font-weight: 600;
+        }
+        .region-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .region-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .region-item:hover {
+            background: #f8fafc;
+        }
+        .region-item:last-child {
+            border-bottom: none;
+        }
+        .region-name {
+            font-weight: 600;
+            color: #1e3a5f;
+        }
+        .region-cases {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        .region-trend {
+            color: #dc2626;
+            font-weight: 600;
+        }
+        .alert-box {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .alert-box.critical {
+            background: #fee2e2;
+            border-color: #fca5a5;
+        }
+        .alert-box.high {
+            background: #fef3c7;
+            border-color: #fcd34d;
+        }
+        .alert-box.medium {
+            background: #dbeafe;
+            border-color: #bae6fd;
+        }
+        .alert-severity {
+            font-weight: 600;
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+        }
+        .alert-severity.critical {
+            background: #dc2626;
+            color: white;
+        }
+        .alert-severity.high {
+            background: #d97706;
+            color: white;
+        }
+        .alert-severity.medium {
+            background: #0369a1;
+            color: white;
+        }
+        .alert-text {
+            color: #7f1d1d;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        .alerts-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .nav-tab {
+            padding: 0.75rem 1rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #64748b;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        .nav-tab.active {
+            color: #1e3a5f;
+            border-bottom-color: #1e3a5f;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .container-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .container-nav a {
+            color: #4a90b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .container-nav a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <a href="/" class="logo">
+                <span class="logo-icon">🏥</span>
+                <span>MediAlert</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>🌍 Real-Time Pandemic Surveillance</h1>
+                <p>Global outbreak tracking and resource allocation</p>
+            </div>
+
+            <!-- Metrics Bar -->
+            <div class="metrics-bar">
+                <div class="metric-card">
+                    <div class="metric-label">Global Cases</div>
+                    <div class="metric-value">{{ (global_stats.case_count / 1000000)|round(2) }}M</div>
+                    <div class="metric-change up">↑ 3.2% vs yesterday</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">New Cases (24h)</div>
+                    <div class="metric-value">{{ (global_stats.case_count * 0.08)|round(0)|int }}K</div>
+                    <div class="metric-change up">↑ 12.5% acceleration</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Severe Cases</div>
+                    <div class="metric-value">{{ (global_stats.severe_count / 1000)|round(1) }}K</div>
+                    <div class="metric-change">{{ ((global_stats.severe_count / global_stats.case_count * 100) if global_stats.case_count > 0 else 0)|round(1) }}%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Deaths</div>
+                    <div class="metric-value">{{ (global_stats.deaths / 1000)|round(1) }}K</div>
+                    <div class="metric-change">CFR: {{ ((global_stats.deaths / global_stats.case_count * 100) if global_stats.case_count > 0 else 0)|round(2) }}%</div>
+                </div>
+            </div>
+
+            <!-- Main Grid -->
+            <div class="main-grid">
+                <!-- Heat Map -->
+                <div class="card">
+                    <h2>📍 Geographic Distribution</h2>
+                    <div class="heatmap-placeholder">
+                        🗺️ Interactive Heat Map
+                        <br>
+                        <span style="font-size: 0.8rem; font-weight: normal;">Integration: Mapbox GL JS</span>
+                    </div>
+                    <p style="color: #64748b; font-size: 0.85rem; margin-top: 1rem;">
+                        Red = High density | Orange = Medium | Green = Low
+                    </p>
+                </div>
+
+                <!-- Case Timeline -->
+                <div class="card">
+                    <h2>📈 Case Trends (30 days)</h2>
+                    <canvas id="trendsChart" height="80"></canvas>
+                </div>
+            </div>
+
+            <!-- Main Grid 2 -->
+            <div class="main-grid">
+                <!-- Top Affected Regions -->
+                <div class="card">
+                    <h2>🔴 Top Affected Regions</h2>
+                    <div class="region-list">
+                        <div class="region-item" onclick="window.location.href='/surveillance/region/country/US'">
+                            <div>
+                                <div class="region-name">United States</div>
+                                <div class="region-cases">450K cases • 240 hospitals</div>
+                            </div>
+                            <div class="region-trend">↑ 8.5%</div>
+                        </div>
+                        <div class="region-item" onclick="window.location.href='/surveillance/region/country/IN'">
+                            <div>
+                                <div class="region-name">India</div>
+                                <div class="region-cases">800K cases • 450 hospitals</div>
+                            </div>
+                            <div class="region-trend">↑ 15.2%</div>
+                        </div>
+                        <div class="region-item" onclick="window.location.href='/surveillance/region/country/BR'">
+                            <div>
+                                <div class="region-name">Brazil</div>
+                                <div class="region-cases">300K cases • 180 hospitals</div>
+                            </div>
+                            <div class="region-trend">↑ 6.3%</div>
+                        </div>
+                        <div class="region-item" onclick="window.location.href='/surveillance/region/country/GB'">
+                            <div>
+                                <div class="region-name">United Kingdom</div>
+                                <div class="region-cases">142K cases • 120 hospitals</div>
+                            </div>
+                            <div class="region-trend">↓ 2.1%</div>
+                        </div>
+                        <div class="region-item" onclick="window.location.href='/surveillance/region/country/FR'">
+                            <div>
+                                <div class="region-name">France</div>
+                                <div class="region-cases">128K cases • 95 hospitals</div>
+                            </div>
+                            <div class="region-trend">→ 0.5%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Alerts -->
+                <div class="card">
+                    <h2>🚨 Active Alerts</h2>
+                    <div class="alerts-container">
+                        {% if alerts %}
+                            {% for alert in alerts[:5] %}
+                            <div class="alert-box {{ alert.severity }}">
+                                <span class="alert-severity {{ alert.severity }}">{{ alert.severity|upper }}</span>
+                                <strong>{{ alert.region_id }}</strong>
+                                <div class="alert-text">{{ alert.description }}</div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                        <div style="padding: 1rem; text-align: center; color: #64748b;">
+                            ✓ No critical alerts at this time
+                        </div>
+                        {% endif %}
+                    </div>
+                    <p style="margin-top: 1rem;">
+                        <a href="/surveillance/alerts" style="color: #4a90b8; text-decoration: none;">View all alerts →</a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Bottom Section -->
+            <div class="main-grid full-width">
+                <!-- Hospital Network -->
+                <div class="card">
+                    <h2>🏥 Hospital Network Status</h2>
+                    <div class="metrics-bar" style="margin: 1rem 0; grid-template-columns: repeat(4, 1fr);">
+                        <div style="padding: 1rem; background: #f0f9ff; border-radius: 6px; text-align: center;">
+                            <div style="color: #0369a1; font-size: 1.5rem; font-weight: 700;">4,250</div>
+                            <div style="color: #0c4a6e; font-size: 0.85rem;">Hospitals Reporting</div>
+                        </div>
+                        <div style="padding: 1rem; background: #f0f9ff; border-radius: 6px; text-align: center;">
+                            <div style="color: #0369a1; font-size: 1.5rem; font-weight: 700;">127</div>
+                            <div style="color: #0c4a6e; font-size: 0.85rem;">Active Alerts</div>
+                        </div>
+                        <div style="padding: 1rem; background: #f0f9ff; border-radius: 6px; text-align: center;">
+                            <div style="color: #0369a1; font-size: 1.5rem; font-weight: 700;">1.2s</div>
+                            <div style="color: #0c4a6e; font-size: 0.85rem;">Avg Response Time</div>
+                        </div>
+                        <div style="padding: 1rem; background: #f0f9ff; border-radius: 6px; text-align: center;">
+                            <div style="color: #0369a1; font-size: 1.5rem; font-weight: 700;">5min</div>
+                            <div style="color: #0c4a6e; font-size: 0.85rem;">Data Freshness</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <a href="/surveillance/hospitals" style="color: #4a90b8; text-decoration: none; font-weight: 500;">
+                            View detailed hospital network →
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Info -->
+            <div style="background: #f0f9ff; padding: 1.5rem; border-radius: 8px; margin-top: 2rem; border-left: 4px solid #0369a1;">
+                <h3 style="color: #0369a1; margin: 0 0 0.5rem 0;">ℹ️ About Real-Time Surveillance</h3>
+                <p style="color: #0c4a6e; margin: 0; font-size: 0.9rem;">
+                    Data is aggregated from {{ (regional_data|length if regional_data else 0) }} reporting regions and updated in real-time as hospitals upload and analyze X-ray images.
+                    All data is anonymized and HIPAA/GDPR compliant. Predictions are for surveillance purposes and should not be used for clinical decisions.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-info">
+                <p>&copy; 2026 MediAlert Surveillance Dashboard</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Case trends chart
+        const ctx = document.getElementById('trendsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Day 1', 'Day 5', 'Day 10', 'Day 15', 'Day 20', 'Day 25', 'Day 30'],
+                datasets: [{
+                    label: 'Total Cases',
+                    data: [100000, 450000, 1850000, 8200000, 45000000, 156000000, 547000000],
+                    borderColor: '#1e3a5f',
+                    backgroundColor: 'rgba(30, 58, 95, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true, position: 'top' }
+                },
+                scales: {
+                    y: {
+                        type: 'logarithmic',
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Cases (Log Scale)'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
