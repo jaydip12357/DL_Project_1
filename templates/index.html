@@ -3,304 +3,740 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediAlert - Pandemic Surveillance & AI Pneumonia Detection</title>
+    <title>MediAlert - AI-Powered Pandemic Surveillance for India</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
-        .landing-hero {
-            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8a 100%);
-            color: white;
-            padding: 4rem 2rem;
-            text-align: center;
-            border-bottom: 4px solid #4a90b8;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .landing-hero h1 {
-            font-size: 3rem;
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #1a1a1a;
+            line-height: 1.6;
+            background: #ffffff;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            font-size: 1.5rem;
             font-weight: 700;
+            color: #2563eb;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            list-style: none;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #4b5563;
+            font-weight: 500;
+            transition: color 0.2s;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+        }
+
+        .nav-menu a:hover {
+            color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .nav-btn {
+            background: #2563eb;
+            color: white !important;
+            padding: 0.75rem 1.5rem !important;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #4b5563;
+        }
+
+        /* Mobile Sidebar */
+        .mobile-sidebar {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            height: 100vh;
+            background: white;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            transition: right 0.3s ease;
+            z-index: 2000;
+        }
+
+        .mobile-sidebar.active {
+            right: 0;
+        }
+
+        .sidebar-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #4b5563;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            margin-top: 3rem;
+        }
+
+        .sidebar-menu li {
             margin-bottom: 1rem;
         }
 
-        .landing-hero p {
-            font-size: 1.25rem;
-            opacity: 0.95;
-            margin-bottom: 2rem;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+        .sidebar-menu a {
+            text-decoration: none;
+            color: #4b5563;
+            font-weight: 500;
+            display: block;
+            padding: 0.75rem;
+            border-radius: 6px;
+            transition: all 0.2s;
         }
 
-        .portal-selector {
+        .sidebar-menu a:hover {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1500;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%);
+            color: white;
+            padding: 3rem 2rem 2.5rem;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+
+        .hero-badges {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Problem & Solution Section */
+        .problem-solution-section {
+            max-width: 1400px;
+            margin: 2.5rem auto;
+            padding: 0 2rem;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: 1fr 1fr;
             gap: 2rem;
-            margin: 3rem 0;
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
+        }
+
+        .problem-card, .solution-card {
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .problem-card {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border-left: 6px solid #dc2626;
+        }
+
+        .solution-card {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-left: 6px solid #16a34a;
+        }
+
+        .problem-card h2, .solution-card h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .problem-card h2 {
+            color: #dc2626;
+        }
+
+        .solution-card h2 {
+            color: #16a34a;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #dc2626;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .solution-features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .solution-feature {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+        }
+
+        .feature-text h4 {
+            color: #16a34a;
+            margin-bottom: 0.25rem;
+            font-size: 1.1rem;
+        }
+
+        .feature-text p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        /* Target Audience Section */
+        .audience-section {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            padding: 2.5rem 2rem;
+            margin: 2.5rem 0;
+        }
+
+        .audience-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .audience-section h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #1e40af;
+            margin-bottom: 2rem;
+        }
+
+        .audience-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .audience-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid #2563eb;
+        }
+
+        .audience-card-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .audience-card h3 {
+            font-size: 1.75rem;
+            color: #1e40af;
+            margin-bottom: 1rem;
+        }
+
+        .audience-card-subtitle {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .benefit-list {
+            list-style: none;
+        }
+
+        .benefit-list li {
+            padding: 0.75rem 0;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .benefit-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #16a34a;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .benefit-list li:last-child {
+            border-bottom: none;
+        }
+
+        /* Portal Cards */
+        .portals-section {
+            max-width: 1400px;
+            margin: 2.5rem auto;
+            padding: 0 2rem;
+        }
+
+        .portals-section h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #1e40af;
+            margin-bottom: 2rem;
+        }
+
+        .portal-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
         }
 
         .portal-card {
             background: white;
-            border-radius: 12px;
             padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-            border-top: 4px solid #1e3a5f;
+            transition: all 0.3s;
+            border: 2px solid #e5e7eb;
         }
 
         .portal-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.2);
+            border-color: #2563eb;
         }
 
         .portal-icon {
-            font-size: 3rem;
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .portal-card h3 {
+            font-size: 2rem;
+            color: #1e40af;
             margin-bottom: 1rem;
         }
 
-        .portal-card h2 {
-            font-size: 1.5rem;
-            color: #1e3a5f;
-            margin-bottom: 0.5rem;
-        }
-
         .portal-card p {
-            color: #64748b;
-            margin-bottom: 1.5rem;
-            font-size: 0.95rem;
-        }
-
-        .portal-card ul {
-            text-align: left;
-            margin: 1rem 0;
-            font-size: 0.9rem;
-            color: #475569;
-        }
-
-        .portal-card li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .portal-card li:last-child {
-            border-bottom: none;
+            color: #6b7280;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
         }
 
         .portal-link {
             display: inline-block;
-            padding: 0.75rem 1.5rem;
-            background: #1e3a5f;
+            background: #2563eb;
             color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 10px;
             text-decoration: none;
-            border-radius: 6px;
-            font-weight: 500;
-            transition: background 0.2s;
-            margin-top: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
         }
 
         .portal-link:hover {
-            background: #2d5a8a;
+            background: #1d4ed8;
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
         }
 
-        .features-section {
-            background: #f8fafc;
+        /* Footer */
+        .footer {
+            background: #1f2937;
+            color: #9ca3af;
             padding: 3rem 2rem;
-            margin: 2rem 0;
+            text-align: center;
         }
 
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            max-width: 1000px;
+        .footer-content {
+            max-width: 1400px;
             margin: 0 auto;
         }
 
-        .feature-item {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            border-left: 4px solid #4a90b8;
-        }
-
-        .feature-item h3 {
-            color: #1e3a5f;
+        .footer p {
             margin-bottom: 0.5rem;
         }
 
-        .feature-item p {
-            color: #64748b;
-            font-size: 0.9rem;
-        }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
 
-        .footer-note {
-            background: #fef3c7;
-            border: 1px solid #fcd34d;
-            border-radius: 6px;
-            padding: 1rem;
-            margin: 2rem 0;
-            text-align: center;
-            color: #92400e;
-            font-size: 0.9rem;
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .problem-solution-section {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .solution-features {
+                grid-template-columns: 1fr;
+            }
+
+            .audience-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .portal-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <a href="/" class="logo">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="logo-nav">
                 <span class="logo-icon">🏥</span>
                 <span>MediAlert</span>
             </a>
-        </div>
-    </header>
 
-    <main class="main">
-        <div class="landing-hero">
-            <div class="container">
-                <h1>MediAlert</h1>
-                <p>Real-time pandemic surveillance with AI-powered pneumonia detection for hospitals and public health officials</p>
+            <ul class="nav-menu">
+                <li><a href="#problem">The Problem</a></li>
+                <li><a href="#solution">Our Solution</a></li>
+                <li><a href="#portals">Get Started</a></li>
+                <li><a href="/surveillance" class="nav-btn">View Dashboard</a></li>
+            </ul>
+
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+        </div>
+    </nav>
+
+    <!-- Mobile Sidebar -->
+    <div class="overlay" id="overlay" onclick="toggleMobileMenu()"></div>
+    <div class="mobile-sidebar" id="mobileSidebar">
+        <button class="sidebar-close" onclick="toggleMobileMenu()">✕</button>
+        <ul class="sidebar-menu">
+            <li><a href="#problem" onclick="toggleMobileMenu()">The Problem</a></li>
+            <li><a href="#solution" onclick="toggleMobileMenu()">Our Solution</a></li>
+            <li><a href="#portals" onclick="toggleMobileMenu()">Get Started</a></li>
+            <li><a href="/surveillance" onclick="toggleMobileMenu()">View Dashboard</a></li>
+            <li><a href="/hospital/login" onclick="toggleMobileMenu()">Hospital Login</a></li>
+        </ul>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div style="background: rgba(255, 255, 255, 0.15); padding: 0.5rem 1.5rem; border-radius: 25px; display: inline-block; margin-bottom: 1rem; font-weight: 600; font-size: 0.9rem;">🚨 OUTBREAK PREVENTION SYSTEM</div>
+            <h1>Stop The Next Outbreak<br>Before It Becomes A Pandemic</h1>
+            <p class="hero-subtitle">Real-time AI surveillance that detects disease surges in hours, not weeks — helping India prevent the next COVID-19</p>
+            <div class="hero-badges">
+                <span class="badge">⚡ Detect outbreaks 10x faster</span>
+                <span class="badge">🏥 2-second X-ray analysis</span>
+                <span class="badge">🇮🇳 India-wide tracking</span>
             </div>
         </div>
+    </section>
 
-        <div class="container">
-            <!-- Problem Statement Section -->
-            <section style="background: white; padding: 3rem 2rem; margin: 2rem 0; border-radius: 8px; border-left: 6px solid #dc2626;">
-                <h2 style="color: #dc2626; margin-bottom: 1.5rem; font-size: 1.75rem;">The Problem: Healthcare Systems Are Overwhelmed</h2>
+    <!-- Problem & Solution Section -->
+    <div class="problem-solution-section" id="problem">
+        <!-- Problem Card -->
+        <div class="problem-card">
+            <h2><span>⚠️</span> Why We Need This Now</h2>
+            <p style="color: #7f1d1d; font-size: 1.1rem; margin-bottom: 1.5rem; font-weight: 600;">
+                COVID-19 killed 2.5M+ people because we detected outbreaks too late. The next pandemic could be worse.
+            </p>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-                    <div style="background: #fee2e2; padding: 1.5rem; border-radius: 8px;">
-                        <div style="font-size: 2.5rem; font-weight: 700; color: #dc2626;">7 days</div>
-                        <p style="color: #7f1d1d; margin-top: 0.5rem;">Average delay from case to diagnosis during COVID-19</p>
-                    </div>
-                    <div style="background: #fee2e2; padding: 1.5rem; border-radius: 8px;">
-                        <div style="font-size: 2.5rem; font-weight: 700; color: #dc2626;">40%</div>
-                        <p style="color: #7f1d1d; margin-top: 0.5rem;">Of preventable deaths due to delayed diagnosis</p>
-                    </div>
-                    <div style="background: #fee2e2; padding: 1.5rem; border-radius: 8px;">
-                        <div style="font-size: 2.5rem; font-weight: 700; color: #dc2626;">10x</div>
-                        <p style="color: #7f1d1d; margin-top: 0.5rem;">Radiologist shortage in India (10 per million vs needed 50)</p>
-                    </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-number">7 days</div>
+                    <div class="stat-label">Average diagnostic delay</div>
                 </div>
-
-                <div style="background: #fef3c7; padding: 1.5rem; border-radius: 6px; border-left: 4px solid #d97706;">
-                    <h3 style="color: #92400e; margin-bottom: 1rem;">During COVID-19 Peak (2021):</h3>
-                    <ul style="color: #78350f; list-style: none; padding: 0;">
-                        <li style="padding: 0.5rem 0;"><strong>🇮🇳 India (April 2021):</strong> 400K daily cases, but only ~4,000 available radiologists. 12+ hour diagnostic delays.</li>
-                        <li style="padding: 0.5rem 0;"><strong>🇺🇸 USA (2021 Peak):</strong> 5,000 daily cases, radiologists working 24/7 shifts. Error rates jumped to 8%.</li>
-                        <li style="padding: 0.5rem 0;"><strong>🌍 Global Impact:</strong> 2.5M+ preventable deaths where faster diagnosis could have saved lives.</li>
-                        <li style="padding: 0.5rem 0;"><strong>⏱️ The Gap:</strong> Traditional systems took days to detect outbreaks. By then, exponential spread already underway.</li>
-                    </ul>
+                <div class="stat-box">
+                    <div class="stat-number">10x</div>
+                    <div class="stat-label">Radiologist shortage</div>
                 </div>
-            </section>
+                <div class="stat-box">
+                    <div class="stat-number">400K</div>
+                    <div class="stat-label">Peak daily cases (2021)</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">12+ hrs</div>
+                    <div class="stat-label">Wait time for results</div>
+                </div>
+            </div>
 
-            <!-- Solution Section -->
-            <section style="background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%); padding: 2rem; margin: 2rem 0; border-radius: 8px; border-left: 6px solid #059669;">
-                <h2 style="color: #059669; margin-bottom: 1rem;">The Solution: MediAlert</h2>
-                <p style="color: #065f46; font-size: 1.05rem; margin-bottom: 1rem;">
-                    Real-time AI-powered pandemic surveillance that detects outbreaks in <strong>hours instead of days</strong>.
+            <div style="background: white; padding: 1.5rem; border-radius: 10px; margin-top: 1rem;">
+                <p style="color: #374151; font-size: 1rem; line-height: 1.7;">
+                    <strong>The Problem:</strong><br>
+                    • Traditional systems take <strong>7 days</strong> to detect outbreaks<br>
+                    • By then, cases have already spread exponentially<br>
+                    • Delayed detection = millions of preventable infections<br>
+                    • India has only 4,000 radiologists for 1.4B people
                 </p>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
-                    <div style="background: white; padding: 1rem; border-radius: 6px; text-align: center;">
-                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚡</div>
-                        <strong style="color: #059669;">2 seconds</strong>
-                        <p style="color: #6b7280; font-size: 0.85rem;">AI analyzes X-ray</p>
-                    </div>
-                    <div style="background: white; padding: 1rem; border-radius: 6px; text-align: center;">
-                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">📊</div>
-                        <strong style="color: #059669;">Real-time</strong>
-                        <p style="color: #6b7280; font-size: 0.85rem;">Data aggregation</p>
-                    </div>
-                    <div style="background: white; padding: 1rem; border-radius: 6px; text-align: center;">
-                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🚨</div>
-                        <strong style="color: #059669;">Auto alerts</strong>
-                        <p style="color: #6b7280; font-size: 0.85rem;">On surge detected</p>
-                    </div>
-                    <div style="background: white; padding: 1rem; border-radius: 6px; text-align: center;">
-                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">📍</div>
-                        <strong style="color: #059669;">Geo-tracking</strong>
-                        <p style="color: #6b7280; font-size: 0.85rem;">City-level precision</p>
-                    </div>
-                </div>
-            </section>
-
-            <div class="portal-selector">
-                <!-- Hospital Portal Card -->
-                <div class="portal-card">
-                    <div class="portal-icon">🏨</div>
-                    <h2>Hospital Portal</h2>
-                    <p>For healthcare professionals and hospital administrators</p>
-                    <ul>
-                        <li>Upload and analyze chest X-rays</li>
-                        <li>Get instant AI-powered diagnostics</li>
-                        <li>Track cases and monitor capacity</li>
-                        <li>Access clinical decision support</li>
-                    </ul>
-                    <a href="/hospital/login" class="portal-link">Access Hospital Portal</a>
-                </div>
-
-                <!-- Surveillance Portal Card -->
-                <div class="portal-card">
-                    <div class="portal-icon">🌍</div>
-                    <h2>Surveillance Dashboard</h2>
-                    <p>For public health officials and epidemiologists</p>
-                    <ul>
-                        <li>Real-time outbreak tracking</li>
-                        <li>Geographic heat maps</li>
-                        <li>Automatic alert generation</li>
-                        <li>Resource allocation insights</li>
-                    </ul>
-                    <a href="/surveillance" class="portal-link">View Surveillance Dashboard</a>
-                </div>
-            </div>
-
-            <!-- Features Section -->
-            <section class="features-section">
-                <h2 style="text-align: center; color: #1e3a5f; margin-bottom: 2rem;">Key Features</h2>
-                <div class="features-grid">
-                    <div class="feature-item">
-                        <h3>⚡ Instant Analysis</h3>
-                        <p>AI analyzes chest X-rays in under 2 seconds with confidence scores and clinical recommendations</p>
-                    </div>
-                    <div class="feature-item">
-                        <h3>🗺️ Real-Time Tracking</h3>
-                        <p>Monitor disease spread at city, state, and country levels with interactive heat maps</p>
-                    </div>
-                    <div class="feature-item">
-                        <h3>🚨 Smart Alerts</h3>
-                        <p>Automatic outbreak detection and alerts when cases surge or thresholds are exceeded</p>
-                    </div>
-                    <div class="feature-item">
-                        <h3>📊 Analytics</h3>
-                        <p>Comprehensive data visualization and trend analysis for informed decision-making</p>
-                    </div>
-                    <div class="feature-item">
-                        <h3>🔒 Privacy-First</h3>
-                        <p>HIPAA/GDPR compliant with zero storage of personally identifiable information</p>
-                    </div>
-                    <div class="feature-item">
-                        <h3>🏥 Network View</h3>
-                        <p>See hospital capacity, resource availability, and participate in coordinated response</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Disclaimer -->
-            <div class="footer-note">
-                <strong>Medical Disclaimer:</strong> MediAlert is for educational and research purposes only.
-                It is not intended for clinical diagnosis. Always consult qualified healthcare professionals for medical advice.
             </div>
         </div>
-    </main>
 
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-info">
-                <p>&copy; 2026 MediAlert. Pandemic surveillance with AI-powered diagnostics.</p>
-                <p>Designed for hospitals, public health agencies, and emergency response teams.</p>
+        <!-- Solution Card -->
+        <div class="solution-card" id="solution">
+            <h2><span>✓</span> How We Stop It</h2>
+            <p style="color: #14532d; font-size: 1.1rem; margin-bottom: 1.5rem; font-weight: 600;">
+                Detect outbreaks in HOURS, not weeks. Alert health officials before exponential spread begins.
+            </p>
+
+            <div class="solution-features">
+                <div class="solution-feature">
+                    <span class="feature-icon">⚡</span>
+                    <div class="feature-text">
+                        <h4>2 Seconds</h4>
+                        <p>X-ray analysis</p>
+                    </div>
+                </div>
+                <div class="solution-feature">
+                    <span class="feature-icon">📍</span>
+                    <div class="feature-text">
+                        <h4>Live Tracking</h4>
+                        <p>Across India</p>
+                    </div>
+                </div>
+                <div class="solution-feature">
+                    <span class="feature-icon">🚨</span>
+                    <div class="feature-text">
+                        <h4>Auto Alerts</h4>
+                        <p>Outbreak detection</p>
+                    </div>
+                </div>
+                <div class="solution-feature">
+                    <span class="feature-icon">🏥</span>
+                    <div class="feature-text">
+                        <h4>Hospital Network</h4>
+                        <p>Coordinated response</p>
+                    </div>
+                </div>
             </div>
+
+            <div style="background: white; padding: 1.5rem; border-radius: 10px; margin-top: 1rem;">
+                <p style="color: #374151; font-size: 1rem; line-height: 1.7;">
+                    <strong>Outbreak Prevention in Action:</strong><br>
+                    • <strong>Early Warning:</strong> Detect surges when cases are still in hundreds, not millions<br>
+                    • <strong>Fast Response:</strong> Alert policymakers within hours to deploy resources<br>
+                    • <strong>Stop Spread:</strong> Implement containment before exponential growth<br>
+                    • <strong>Save Lives:</strong> Prevent the next COVID-19 catastrophe
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Target Audience Section -->
+    <section class="audience-section">
+        <div class="audience-content">
+            <h2>Stop Outbreaks Before They Spread</h2>
+            <div class="audience-grid">
+                <!-- For Doctors -->
+                <div class="audience-card">
+                    <div class="audience-card-icon">👨‍⚕️</div>
+                    <h3>For Doctors & Radiologists</h3>
+                    <p class="audience-card-subtitle">Never miss early warning signs during surges</p>
+                    <ul class="benefit-list">
+                        <li>AI analyzes chest X-rays in 2 seconds - no delays</li>
+                        <li>Handle 10x more patients during outbreak surges</li>
+                        <li>Immediate alerts when patterns match outbreaks</li>
+                        <li>24/7 diagnostic support - never overwhelmed</li>
+                        <li>Track case spikes in your region in real-time</li>
+                        <li>Contribute data to prevent nationwide spread</li>
+                    </ul>
+                </div>
+
+                <!-- For Policymakers -->
+                <div class="audience-card">
+                    <div class="audience-card-icon">🏛️</div>
+                    <h3>For Policymakers & Health Officials</h3>
+                    <p class="audience-card-subtitle">Detect and contain outbreaks before exponential spread</p>
+                    <ul class="benefit-list">
+                        <li>Get outbreak alerts when cases surge — not after</li>
+                        <li>See which states/districts need immediate action</li>
+                        <li>Deploy resources to hotspots BEFORE hospitals overflow</li>
+                        <li>Track if containment measures are working</li>
+                        <li>Prevent localized outbreaks from going national</li>
+                        <li>Avoid repeating COVID-19's delay mistakes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portal Cards -->
+    <section class="portals-section" id="portals">
+        <h2>Choose Your Portal</h2>
+        <div class="portal-grid">
+            <div class="portal-card">
+                <div class="portal-icon">🏨</div>
+                <h3>Hospital Portal</h3>
+                <p>For doctors, radiologists, and hospital administrators in India</p>
+                <a href="/hospital/login" class="portal-link">Access Hospital Portal →</a>
+            </div>
+
+            <div class="portal-card">
+                <div class="portal-icon">🇮🇳</div>
+                <h3>India Surveillance Dashboard</h3>
+                <p>For public health officials and policymakers tracking India's health</p>
+                <a href="/surveillance" class="portal-link">View Live Dashboard →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p style="font-weight: 600; color: #d1d5db; font-size: 1.1rem; margin-bottom: 1rem;">⚠️ Medical Disclaimer</p>
+            <p>MediAlert is for educational and research purposes only. Not intended for clinical diagnosis.</p>
+            <p>Always consult qualified healthcare professionals for medical advice.</p>
+            <p style="margin-top: 2rem; color: #6b7280;">&copy; 2026 MediAlert India. AI-Powered Pandemic Surveillance System.</p>
         </div>
     </footer>
+
+    <script>
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
 </body>
 </html>
