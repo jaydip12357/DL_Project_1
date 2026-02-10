@@ -319,6 +319,7 @@
             <ul class="nav-menu">
                 <li><a href="/">Home</a></li>
                 <li><a href="/surveillance">India Dashboard</a></li>
+                <li><a href="/surveillance/predictions">📊 Predictions</a></li>
                 <li><a href="/hospital/login" class="nav-btn">Hospital Login</a></li>
             </ul>
             <button class="mobile-menu-btn" onclick="toggleMobileMenu()">&#9776;</button>
@@ -331,6 +332,7 @@
         <ul class="sidebar-menu">
             <li><a href="/" onclick="toggleMobileMenu()">Home</a></li>
             <li><a href="/surveillance" onclick="toggleMobileMenu()">India Dashboard</a></li>
+            <li><a href="/surveillance/predictions" onclick="toggleMobileMenu()">📊 Predictions</a></li>
             <li><a href="/hospital/login" onclick="toggleMobileMenu()">Hospital Login</a></li>
         </ul>
     </div>
@@ -341,6 +343,20 @@
     </section>
 
     <div class="container">
+        <!-- Predictions Feature Highlight -->
+        <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0e4f8b; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(14, 79, 139, 0.08);" onclick="window.location.href='/surveillance/predictions'" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(14, 79, 139, 0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(14, 79, 139, 0.08)'">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2 style="margin: 0 0 0.5rem 0; color: #0e4f8b; font-size: 1.25rem; font-weight: 700;">AI-Powered Predictions &amp; Alerts</h2>
+                    <p style="margin: 0; color: #475569; font-size: 0.95rem; line-height: 1.6;">
+                        <strong>Get 7-day forecasts, rapid growth alerts, and resource demand predictions</strong><br>
+                        View which cities need immediate attention &bull; Predict bed &amp; ventilator shortages &bull; Track doubling times
+                    </p>
+                </div>
+                <div style="font-size: 2rem; color: #0e4f8b;">&rarr;</div>
+            </div>
+        </div>
+
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-label">Total Cases (India)</div>
