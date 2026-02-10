@@ -471,6 +471,7 @@
             <ul class="nav-menu">
                 <li><a href="/">Home</a></li>
                 <li><a href="/surveillance">India Dashboard</a></li>
+                <li><a href="/surveillance/predictions">📊 Predictions</a></li>
                 <li><a href="/hospital/login" class="nav-btn">Hospital Login</a></li>
             </ul>
 
@@ -485,6 +486,7 @@
         <ul class="sidebar-menu">
             <li><a href="/" onclick="toggleMobileMenu()">Home</a></li>
             <li><a href="/surveillance" onclick="toggleMobileMenu()">India Dashboard</a></li>
+            <li><a href="/surveillance/predictions" onclick="toggleMobileMenu()">📊 Predictions</a></li>
             <li><a href="/hospital/login" onclick="toggleMobileMenu()">Hospital Login</a></li>
         </ul>
     </div>
@@ -496,6 +498,20 @@
     </section>
 
     <div class="container">
+        <!-- NEW: Predictions Feature Highlight -->
+        <div style="background: linear-gradient(135deg, #fef3e7 0%, #fce4d6 100%); border: 3px solid #d4746a; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(212, 116, 106, 0.1);" onclick="window.location.href='/surveillance/predictions'" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 32px rgba(212, 116, 106, 0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(212, 116, 106, 0.1)'">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2 style="margin: 0 0 0.5rem 0; color: #d4746a; font-size: 1.5rem;">📊 NEW: AI-Powered Predictions & Alerts</h2>
+                    <p style="margin: 0; color: #6b6b6b; font-size: 1rem; line-height: 1.6;">
+                        <strong>Get 7-day forecasts, rapid growth alerts, and resource demand predictions</strong><br>
+                        View which cities need immediate attention • Predict bed & ventilator shortages • Track doubling times
+                    </p>
+                </div>
+                <div style="font-size: 3rem; color: #d4746a;">→</div>
+            </div>
+        </div>
+
         <!-- National Stats -->
         <div class="stats-grid">
             <div class="stat-card">
