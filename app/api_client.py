@@ -1,3 +1,12 @@
+"""
+Model API Client for Pneumonia Detection.
+
+This module provides mock prediction functionality for demo purposes.
+
+AI Attribution: Code generated with assistance from Claude AI (Anthropic)
+via Cursor IDE on February 2026.
+"""
+
 import requests
 import random
 import time

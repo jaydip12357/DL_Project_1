@@ -1,3 +1,13 @@
+"""
+Deep Learning Model Training Script (ResNet18 Fine-tuning).
+
+This script fine-tunes a pre-trained ResNet18 on Chest X-Ray images
+for pneumonia detection.
+
+AI Attribution: Code generated with assistance from Claude AI (Anthropic)
+via Cursor IDE on February 2026.
+"""
+
 import os
 import torch
 import torch.nn as nn

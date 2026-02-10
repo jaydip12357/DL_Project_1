@@ -1,3 +1,12 @@
+"""
+Naive Baseline Model Training Script for Pneumonia Detection.
+
+This script implements a Most Frequent Class baseline predictor.
+
+AI Attribution: Code generated with assistance from Claude AI (Anthropic)
+via Cursor IDE on February 2026.
+"""
+
 import os
 import json
 from pathlib import Path

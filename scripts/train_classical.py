@@ -1,3 +1,12 @@
+"""
+Classical Machine Learning Model Training Script (HOG + SVM).
+
+This script extracts HOG features from X-Ray images and trains an SVM classifier.
+
+AI Attribution: Code generated with assistance from Claude AI (Anthropic)
+via Cursor IDE on February 2026.
+"""
+
 import os
 import joblib
 import numpy as np
