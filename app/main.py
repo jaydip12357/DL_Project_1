@@ -9,8 +9,14 @@ from .database import (
     get_supabase_client, create_hospital, get_hospital, get_all_hospitals,
     create_upload, create_analysis, create_patient_metadata,
     get_hospital_stats, get_global_stats, get_regional_data, create_alert,
-    get_active_alerts
+    get_active_alerts, get_regional_timeseries, get_hospital_timeseries,
+    get_resource_timeseries, get_current_hospital_capacity, get_regional_summary_latest
 )
+from .models.predictions import (
+    CaseForecastModel, ResourceDemandPredictor, GrowthAnalyzer,
+    generate_forecast_report
+)
+from .models.alerts import AlertEngine
 
 
 app = Flask(__name__,
@@ -349,6 +355,58 @@ def surveillance_alerts():
     return render_template('surveillance/alerts.html', alerts=alerts)
 
 
+@app.route('/surveillance/predictions')
+def surveillance_predictions():
+    """Policymaker predictions dashboard - forecasts and alerts."""
+    # Get growth metrics for top regions
+    regions = get_regional_summary_latest(region_type='country')
+
+    growth_metrics = []
+    rapid_growth_alerts = []
+
+    alert_engine = AlertEngine()
+
+    for region in regions[:10]:  # Top 10 regions
+        region_id = region.get('region_id')
+        region_name = region.get('region_name', region_id)
+
+        # Get time-series data
+        timeseries = get_regional_timeseries(
+            region_id=region_id,
+            region_type='country',
+            days=30
+        )
+
+        if timeseries:
+            # Calculate metrics
+            metrics = GrowthAnalyzer.calculate_growth_metrics(timeseries)
+
+            if metrics.get('success'):
+                metrics['region_id'] = region_id
+                metrics['region_name'] = region_name
+                growth_metrics.append(metrics)
+
+                # Generate growth alerts
+                alerts = alert_engine.generate_growth_alerts(
+                    region_name=region_name,
+                    region_id=region_id,
+                    timeseries_data=timeseries
+                )
+                rapid_growth_alerts.extend(alerts)
+
+    # Sort metrics by growth rate
+    growth_metrics.sort(key=lambda x: x.get('growth_rate_3day', 0), reverse=True)
+
+    # Get alert summary
+    alert_summary = alert_engine.get_alert_summary(rapid_growth_alerts)
+
+    return render_template('surveillance/predictions.html',
+        growth_metrics=growth_metrics,
+        alerts=rapid_growth_alerts,
+        alert_summary=alert_summary
+    )
+
+
 @app.route('/surveillance/hospitals')
 def surveillance_hospitals():
     """View all participating hospitals and their status."""
@@ -484,6 +542,304 @@ def api_hospital_stats(hospital_id):
         'avg_confidence': 0.87,
     }
     return jsonify(stats)
+
+
+# ===================== PREDICTION & ALERT API ENDPOINTS =====================
+
+@app.route('/api/v1/predictions/region/<region_id>')
+def api_regional_predictions(region_id):
+    """Generate 7-day forecast for a specific region.
+
+    Query params:
+        - region_type: 'country', 'state', or 'city' (default: 'country')
+        - forecast_days: Number of days to forecast (default: 7)
+    """
+    try:
+        region_type = request.args.get('region_type', default='country')
+        forecast_days = request.args.get('forecast_days', default=7, type=int)
+
+        # Get historical data (30 days)
+        timeseries_data = get_regional_timeseries(
+            region_id=region_id,
+            region_type=region_type,
+            days=30
+        )
+
+        if not timeseries_data:
+            return jsonify({
+                'success': False,
+                'error': 'No historical data available for this region'
+            }), 404
+
+        region_name = timeseries_data[0].get('region_name', region_id)
+
+        # Get current hospital capacity for this region
+        hospitals = get_current_hospital_capacity()
+
+        # Aggregate capacity across region
+        total_capacity = {
+            'total_beds': sum(h.get('total_beds', 0) for h in hospitals),
+            'icu_beds': sum(h.get('icu_beds', 0) for h in hospitals),
+            'ventilators_available': sum(
+                h.get('latest_resources', {}).get('ventilators_available', 0)
+                if h.get('latest_resources') else 0
+                for h in hospitals
+            )
+        }
+
+        # Generate comprehensive forecast report
+        report = generate_forecast_report(
+            region_name=region_name,
+            timeseries_data=timeseries_data,
+            current_capacity=total_capacity,
+            forecast_days=forecast_days
+        )
+
+        return jsonify(report)
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/v1/predictions/hospital/<hospital_id>')
+def api_hospital_predictions(hospital_id):
+    """Generate 7-day forecast for a specific hospital.
+
+    Query params:
+        - forecast_days: Number of days to forecast (default: 7)
+    """
+    try:
+        forecast_days = request.args.get('forecast_days', default=7, type=int)
+
+        # Get hospital info
+        hospital = get_hospital(hospital_id)
+        if not hospital:
+            return jsonify({
+                'success': False,
+                'error': 'Hospital not found'
+            }), 404
+
+        # Get historical data
+        timeseries_data = get_hospital_timeseries(hospital_id=hospital_id, days=30)
+
+        if not timeseries_data:
+            return jsonify({
+                'success': False,
+                'error': 'No historical data available for this hospital'
+            }), 404
+
+        # Get hospital capacity
+        capacity_info = get_current_hospital_capacity(hospital_id=hospital_id)
+        current_capacity = capacity_info[0] if capacity_info else {}
+
+        # Generate forecast report
+        report = generate_forecast_report(
+            region_name=hospital.get('name', hospital_id),
+            timeseries_data=timeseries_data,
+            current_capacity={
+                'total_beds': current_capacity.get('total_beds', 0),
+                'icu_beds': current_capacity.get('icu_beds', 0),
+                'ventilators_available': (
+                    current_capacity.get('latest_resources', {}).get('ventilators_available', 0)
+                    if current_capacity.get('latest_resources') else 0
+                )
+            },
+            forecast_days=forecast_days
+        )
+
+        return jsonify(report)
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/v1/alerts/growth')
+def api_growth_alerts():
+    """Get rapid growth alerts for all regions.
+
+    Query params:
+        - region_type: 'country', 'state', or 'city' (default: 'country')
+        - threshold: Growth rate % to trigger alert (default: 50)
+    """
+    try:
+        region_type = request.args.get('region_type', default='country')
+        threshold = request.args.get('threshold', default=50.0, type=float)
+
+        # Get latest regional data
+        regions = get_regional_summary_latest(region_type=region_type)
+
+        alert_engine = AlertEngine(thresholds={'surge_growth_rate': threshold})
+        all_alerts = []
+
+        for region in regions:
+            region_id = region.get('region_id')
+            region_name = region.get('region_name', region_id)
+
+            # Get time-series for this region
+            timeseries = get_regional_timeseries(
+                region_id=region_id,
+                region_type=region_type,
+                days=30
+            )
+
+            if timeseries:
+                # Generate growth alerts
+                alerts = alert_engine.generate_growth_alerts(
+                    region_name=region_name,
+                    region_id=region_id,
+                    timeseries_data=timeseries
+                )
+                all_alerts.extend(alerts)
+
+        # Get summary
+        summary = alert_engine.get_alert_summary(all_alerts)
+
+        return jsonify({
+            'success': True,
+            'alerts': all_alerts,
+            'summary': summary
+        })
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/v1/alerts/capacity')
+def api_capacity_alerts():
+    """Get capacity warnings for all regions.
+
+    Query params:
+        - region_type: 'country', 'state', or 'city' (default: 'country')
+        - forecast_days: Days to forecast (default: 7)
+    """
+    try:
+        region_type = request.args.get('region_type', default='country')
+        forecast_days = request.args.get('forecast_days', default=7, type=int)
+
+        regions = get_regional_summary_latest(region_type=region_type)
+
+        alert_engine = AlertEngine()
+        all_alerts = []
+
+        for region in regions[:10]:  # Limit to top 10 regions for performance
+            region_id = region.get('region_id')
+            region_name = region.get('region_name', region_id)
+
+            # Get time-series
+            timeseries = get_regional_timeseries(
+                region_id=region_id,
+                region_type=region_type,
+                days=30
+            )
+
+            if not timeseries:
+                continue
+
+            # Get capacity
+            hospitals = get_current_hospital_capacity()
+            total_capacity = {
+                'icu_beds': sum(h.get('icu_beds', 0) for h in hospitals),
+                'ventilators_available': sum(
+                    h.get('latest_resources', {}).get('ventilators_available', 0)
+                    if h.get('latest_resources') else 0
+                    for h in hospitals
+                )
+            }
+
+            # Generate forecast
+            forecast_model = CaseForecastModel()
+            if forecast_model.fit(timeseries):
+                case_forecast = forecast_model.forecast(days=forecast_days)
+
+                if case_forecast.get('success'):
+                    # Predict resource needs
+                    resource_predictor = ResourceDemandPredictor()
+                    resource_forecast = resource_predictor.predict_resource_needs(
+                        case_forecast['predictions'],
+                        total_capacity
+                    )
+
+                    # Generate capacity alerts
+                    alerts = alert_engine.generate_capacity_alerts(
+                        region_name=region_name,
+                        region_id=region_id,
+                        resource_forecast=resource_forecast,
+                        current_capacity=total_capacity
+                    )
+                    all_alerts.extend(alerts)
+
+        summary = alert_engine.get_alert_summary(all_alerts)
+
+        return jsonify({
+            'success': True,
+            'alerts': all_alerts,
+            'summary': summary
+        })
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/v1/analytics/growth-metrics')
+def api_growth_metrics():
+    """Get growth metrics for all regions (doubling time, velocity, etc).
+
+    Query params:
+        - region_type: 'country', 'state', or 'city' (default: 'country')
+    """
+    try:
+        region_type = request.args.get('region_type', default='country')
+
+        regions = get_regional_summary_latest(region_type=region_type)
+
+        metrics_list = []
+
+        for region in regions:
+            region_id = region.get('region_id')
+            region_name = region.get('region_name', region_id)
+
+            # Get time-series
+            timeseries = get_regional_timeseries(
+                region_id=region_id,
+                region_type=region_type,
+                days=30
+            )
+
+            if timeseries:
+                # Calculate growth metrics
+                metrics = GrowthAnalyzer.calculate_growth_metrics(timeseries)
+
+                if metrics.get('success'):
+                    metrics['region_id'] = region_id
+                    metrics['region_name'] = region_name
+                    metrics_list.append(metrics)
+
+        # Sort by growth rate (descending)
+        metrics_list.sort(key=lambda x: x.get('growth_rate_3day', 0), reverse=True)
+
+        return jsonify({
+            'success': True,
+            'metrics': metrics_list,
+            'total_regions': len(metrics_list)
+        })
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 
 # ===================== ERROR HANDLING =====================
