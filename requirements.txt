@@ -15,6 +15,16 @@ pandas==2.1.4
 numpy==1.26.2
 scikit-learn==1.3.2
 
+# Deep Learning
+torch
+torchvision
+tqdm
+
+# Image Processing
+scikit-image
+joblib
+matplotlib
+
 # Development/Testing
 pytest==7.4.3
 pytest-mock==3.12.0
