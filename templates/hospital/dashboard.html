@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Dashboard - MediAlert</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .dashboard-header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8a 100%);
+            color: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+        }
+        .dashboard-header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2rem;
+        }
+        .dashboard-header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        .hospital-info {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        .info-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 4px solid #4a90b8;
+        }
+        .info-label {
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+        .info-value {
+            color: #1e3a5f;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            border-top: 4px solid #4a90b8;
+        }
+        .stat-card h3 {
+            color: #64748b;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            margin: 0 0 0.5rem 0;
+        }
+        .stat-value {
+            color: #1e3a5f;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        .stat-change {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        .stat-change.up {
+            color: #dc2626;
+        }
+        .stat-change.down {
+            color: #059669;
+        }
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .action-btn {
+            padding: 1rem;
+            background: #1e3a5f;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.2s;
+            text-decoration: none;
+            text-align: center;
+        }
+        .action-btn:hover {
+            background: #2d5a8a;
+        }
+        .action-btn.secondary {
+            background: #4a90b8;
+        }
+        .action-btn.secondary:hover {
+            background: #5aa3d0;
+        }
+        .chart-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .chart-container h2 {
+            color: #1e3a5f;
+            margin: 0 0 1rem 0;
+            font-size: 1.25rem;
+        }
+        .recent-uploads {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+        .recent-uploads h2 {
+            color: #1e3a5f;
+            margin: 0 0 1rem 0;
+            font-size: 1.25rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: #f8fafc;
+            padding: 0.75rem;
+            text-align: left;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        tr:hover {
+            background: #f8fafc;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge.normal {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .badge.pneumonia {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .badge.severe {
+            background: #fee2e2;
+            color: #7f1d1d;
+        }
+        .user-menu {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .user-menu a {
+            color: #4a90b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .user-menu a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <a href="/" class="logo">
+                <span class="logo-icon">🏥</span>
+                <span>MediAlert</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="user-menu">
+        <a href="/hospital/logout">Logout</a>
+    </div>
+
+    <main class="main">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>{{ hospital.name }}</h1>
+                <p>Hospital Dashboard • {{ hospital.city }}, {{ hospital.state }} • {{ hospital.country }}</p>
+            </div>
+
+            <div class="hospital-info">
+                <div class="info-card">
+                    <div class="info-label">Total Beds</div>
+                    <div class="info-value">{{ hospital.total_beds }}</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">ICU Beds</div>
+                    <div class="info-value">{{ hospital.icu_beds }}</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Location</div>
+                    <div class="info-value">{{ hospital.latitude }}, {{ hospital.longitude }}</div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Cases Today</h3>
+                    <div class="stat-value">{{ stats_today.case_count }}</div>
+                    <div class="stat-change {% if stats_today.case_count > stats_week.case_count %}up{% else %}down{% endif %}">
+                        {% if stats_today.case_count > 0 %}↑ 3.2% vs avg{% else %}No cases yet{% endif %}
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h3>Severe Cases</h3>
+                    <div class="stat-value">{{ stats_today.severe_count }}</div>
+                    <div class="stat-change">{{ ((stats_today.severe_count / stats_today.case_count * 100) if stats_today.case_count > 0 else 0)|round(1) }}% of total</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Normal Cases</h3>
+                    <div class="stat-value">{{ stats_today.normal_count }}</div>
+                    <div class="stat-change down">↓ Negative results</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Avg Confidence</h3>
+                    <div class="stat-value">{{ (stats_today.avg_confidence * 100)|round(0)|int }}%</div>
+                    <div class="stat-change">AI model accuracy</div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="actions">
+                <a href="/hospital/upload" class="action-btn">
+                    📤 Upload X-Rays
+                </a>
+                <a href="/hospital/results/latest" class="action-btn secondary">
+                    📊 View Results
+                </a>
+                <a href="/surveillance" class="action-btn secondary">
+                    🌍 Global Dashboard
+                </a>
+            </div>
+
+            <!-- Charts -->
+            <div class="chart-container">
+                <h2>Cases This Week</h2>
+                <canvas id="casesChart" height="100"></canvas>
+            </div>
+
+            <!-- Recent Uploads -->
+            <div class="recent-uploads">
+                <h2>📋 Recent Analyses</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Result</th>
+                            <th>Confidence</th>
+                            <th>Severity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Today 2:45 PM</td>
+                            <td>Pneumonia</td>
+                            <td>87%</td>
+                            <td><span class="badge pneumonia">Moderate</span></td>
+                        </tr>
+                        <tr>
+                            <td>Today 1:20 PM</td>
+                            <td>Normal</td>
+                            <td>92%</td>
+                            <td><span class="badge normal">Mild</span></td>
+                        </tr>
+                        <tr>
+                            <td>Today 11:10 AM</td>
+                            <td>Pneumonia</td>
+                            <td>76%</td>
+                            <td><span class="badge severe">Severe</span></td>
+                        </tr>
+                        <tr>
+                            <td>Yesterday 4:30 PM</td>
+                            <td>Normal</td>
+                            <td>88%</td>
+                            <td><span class="badge normal">Mild</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-info">
+                <p>&copy; 2026 MediAlert Hospital Portal</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Sample chart data
+        const ctx = document.getElementById('casesChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Cases',
+                    data: [12, 19, 15, 25, 22, 30, 28],
+                    borderColor: '#1e3a5f',
+                    backgroundColor: 'rgba(30, 58, 95, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: 'Severe Cases',
+                    data: [2, 3, 2, 4, 3, 5, 4],
+                    borderColor: '#dc2626',
+                    backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

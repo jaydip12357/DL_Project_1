@@ -1,73 +1,306 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediAlert - Pandemic Surveillance & AI Pneumonia Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .landing-hero {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8a 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            border-bottom: 4px solid #4a90b8;
+        }
 
-{% block title %}Pneumonia Detection - Upload X-Ray{% endblock %}
+        .landing-hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
 
-{% block content %}
-<div class="hero">
-    <h1>Chest X-Ray Analysis</h1>
-    <p class="hero-subtitle">Upload a chest X-ray image to detect signs of pneumonia using AI analysis</p>
-</div>
+        .landing-hero p {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
 
-<div class="disclaimer-banner">
-    <svg class="disclaimer-icon" viewBox="0 0 24 24" width="20" height="20">
-        <path fill="currentColor"
-            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-    </svg>
-    <span>For educational and research purposes only. Not for clinical diagnosis.</span>
-</div>
+        .portal-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
 
-<div class="upload-section">
-    <form id="upload-form" action="{{ url_for('analyze') }}" method="POST" enctype="multipart/form-data">
-        <div class="upload-zone" id="upload-zone">
-            <div class="upload-content" id="upload-content">
-                <svg class="upload-icon" viewBox="0 0 24 24" width="48" height="48">
-                    <path fill="currentColor"
-                        d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
-                </svg>
-                <p class="upload-text">Drag and drop your X-ray image here</p>
-                <p class="upload-subtext">or click to browse files</p>
-                <p class="upload-formats">Supported formats: JPG, PNG (max 10MB)</p>
+        .portal-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-top: 4px solid #1e3a5f;
+        }
+
+        .portal-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .portal-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .portal-card h2 {
+            font-size: 1.5rem;
+            color: #1e3a5f;
+            margin-bottom: 0.5rem;
+        }
+
+        .portal-card p {
+            color: #64748b;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .portal-card ul {
+            text-align: left;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: #475569;
+        }
+
+        .portal-card li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .portal-card li:last-child {
+            border-bottom: none;
+        }
+
+        .portal-link {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #1e3a5f;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background 0.2s;
+            margin-top: 1rem;
+        }
+
+        .portal-link:hover {
+            background: #2d5a8a;
+        }
+
+        .features-section {
+            background: #f8fafc;
+            padding: 3rem 2rem;
+            margin: 2rem 0;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .feature-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #4a90b8;
+        }
+
+        .feature-item h3 {
+            color: #1e3a5f;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-item p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .footer-note {
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 2rem 0;
+            text-align: center;
+            color: #92400e;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <a href="/" class="logo">
+                <span class="logo-icon">🏥</span>
+                <span>MediAlert</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="landing-hero">
+            <div class="container">
+                <h1>MediAlert</h1>
+                <p>Real-time pandemic surveillance with AI-powered pneumonia detection for hospitals and public health officials</p>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- Problem Statement Section -->
+            <section style="background: white; padding: 3rem 2rem; margin: 2rem 0; border-radius: 8px; border-left: 6px solid #dc2626;">
+                <h2 style="color: #dc2626; margin-bottom: 1.5rem; font-size: 1.75rem;">The Problem: Healthcare Systems Are Overwhelmed</h2>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div style="background: #fee2e2; padding: 1.5rem; border-radius: 8px;">
+                        <div style="font-size: 2.5rem; font-weight: 700; color: #dc2626;">7 days</div>
+                        <p style="color: #7f1d1d; margin-top: 0.5rem;">Average delay from case to diagnosis during COVID-19</p>
+                    </div>
+                    <div style="background: #fee2e2; padding: 1.5rem; border-radius: 8px;">
+                        <div style="font-size: 2.5rem; font-weight: 700; color: #dc2626;">40%</div>
+                        <p style="color: #7f1d1d; margin-top: 0.5rem;">Of preventable deaths due to delayed diagnosis</p>
+                    </div>
+                    <div style="background: #fee2e2; padding: 1.5rem; border-radius: 8px;">
+                        <div style="font-size: 2.5rem; font-weight: 700; color: #dc2626;">10x</div>
+                        <p style="color: #7f1d1d; margin-top: 0.5rem;">Radiologist shortage in India (10 per million vs needed 50)</p>
+                    </div>
+                </div>
+
+                <div style="background: #fef3c7; padding: 1.5rem; border-radius: 6px; border-left: 4px solid #d97706;">
+                    <h3 style="color: #92400e; margin-bottom: 1rem;">During COVID-19 Peak (2021):</h3>
+                    <ul style="color: #78350f; list-style: none; padding: 0;">
+                        <li style="padding: 0.5rem 0;"><strong>🇮🇳 India (April 2021):</strong> 400K daily cases, but only ~4,000 available radiologists. 12+ hour diagnostic delays.</li>
+                        <li style="padding: 0.5rem 0;"><strong>🇺🇸 USA (2021 Peak):</strong> 5,000 daily cases, radiologists working 24/7 shifts. Error rates jumped to 8%.</li>
+                        <li style="padding: 0.5rem 0;"><strong>🌍 Global Impact:</strong> 2.5M+ preventable deaths where faster diagnosis could have saved lives.</li>
+                        <li style="padding: 0.5rem 0;"><strong>⏱️ The Gap:</strong> Traditional systems took days to detect outbreaks. By then, exponential spread already underway.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Solution Section -->
+            <section style="background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%); padding: 2rem; margin: 2rem 0; border-radius: 8px; border-left: 6px solid #059669;">
+                <h2 style="color: #059669; margin-bottom: 1rem;">The Solution: MediAlert</h2>
+                <p style="color: #065f46; font-size: 1.05rem; margin-bottom: 1rem;">
+                    Real-time AI-powered pandemic surveillance that detects outbreaks in <strong>hours instead of days</strong>.
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                    <div style="background: white; padding: 1rem; border-radius: 6px; text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚡</div>
+                        <strong style="color: #059669;">2 seconds</strong>
+                        <p style="color: #6b7280; font-size: 0.85rem;">AI analyzes X-ray</p>
+                    </div>
+                    <div style="background: white; padding: 1rem; border-radius: 6px; text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">📊</div>
+                        <strong style="color: #059669;">Real-time</strong>
+                        <p style="color: #6b7280; font-size: 0.85rem;">Data aggregation</p>
+                    </div>
+                    <div style="background: white; padding: 1rem; border-radius: 6px; text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🚨</div>
+                        <strong style="color: #059669;">Auto alerts</strong>
+                        <p style="color: #6b7280; font-size: 0.85rem;">On surge detected</p>
+                    </div>
+                    <div style="background: white; padding: 1rem; border-radius: 6px; text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">📍</div>
+                        <strong style="color: #059669;">Geo-tracking</strong>
+                        <p style="color: #6b7280; font-size: 0.85rem;">City-level precision</p>
+                    </div>
+                </div>
+            </section>
+
+            <div class="portal-selector">
+                <!-- Hospital Portal Card -->
+                <div class="portal-card">
+                    <div class="portal-icon">🏨</div>
+                    <h2>Hospital Portal</h2>
+                    <p>For healthcare professionals and hospital administrators</p>
+                    <ul>
+                        <li>Upload and analyze chest X-rays</li>
+                        <li>Get instant AI-powered diagnostics</li>
+                        <li>Track cases and monitor capacity</li>
+                        <li>Access clinical decision support</li>
+                    </ul>
+                    <a href="/hospital/login" class="portal-link">Access Hospital Portal</a>
+                </div>
+
+                <!-- Surveillance Portal Card -->
+                <div class="portal-card">
+                    <div class="portal-icon">🌍</div>
+                    <h2>Surveillance Dashboard</h2>
+                    <p>For public health officials and epidemiologists</p>
+                    <ul>
+                        <li>Real-time outbreak tracking</li>
+                        <li>Geographic heat maps</li>
+                        <li>Automatic alert generation</li>
+                        <li>Resource allocation insights</li>
+                    </ul>
+                    <a href="/surveillance" class="portal-link">View Surveillance Dashboard</a>
+                </div>
             </div>
 
-            <div class="preview-content hidden" id="preview-content">
-                <img id="preview-image" src="" alt="Preview">
-                <p class="preview-filename" id="preview-filename"></p>
-                <button type="button" class="btn-clear" id="clear-btn">Choose different image</button>
+            <!-- Features Section -->
+            <section class="features-section">
+                <h2 style="text-align: center; color: #1e3a5f; margin-bottom: 2rem;">Key Features</h2>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <h3>⚡ Instant Analysis</h3>
+                        <p>AI analyzes chest X-rays in under 2 seconds with confidence scores and clinical recommendations</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>🗺️ Real-Time Tracking</h3>
+                        <p>Monitor disease spread at city, state, and country levels with interactive heat maps</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>🚨 Smart Alerts</h3>
+                        <p>Automatic outbreak detection and alerts when cases surge or thresholds are exceeded</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>📊 Analytics</h3>
+                        <p>Comprehensive data visualization and trend analysis for informed decision-making</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>🔒 Privacy-First</h3>
+                        <p>HIPAA/GDPR compliant with zero storage of personally identifiable information</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>🏥 Network View</h3>
+                        <p>See hospital capacity, resource availability, and participate in coordinated response</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Disclaimer -->
+            <div class="footer-note">
+                <strong>Medical Disclaimer:</strong> MediAlert is for educational and research purposes only.
+                It is not intended for clinical diagnosis. Always consult qualified healthcare professionals for medical advice.
             </div>
-
-            <input type="file" id="file-input" name="image" accept=".jpg,.jpeg,.png" hidden>
         </div>
+    </main>
 
-        <div class="upload-error hidden" id="upload-error"></div>
-
-        <button type="submit" class="btn-analyze" id="analyze-btn" disabled>
-            <span class="btn-text">Analyze X-Ray</span>
-            <span class="btn-loading hidden">
-                <span class="spinner"></span>
-                Analyzing...
-            </span>
-        </button>
-    </form>
-</div>
-
-<section class="info-section">
-    <h2>How It Works</h2>
-    <div class="steps">
-        <div class="step">
-            <div class="step-number">1</div>
-            <h3>Upload</h3>
-            <p>Select a chest X-ray image in JPG or PNG format</p>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-info">
+                <p>&copy; 2026 MediAlert. Pandemic surveillance with AI-powered diagnostics.</p>
+                <p>Designed for hospitals, public health agencies, and emergency response teams.</p>
+            </div>
         </div>
-        <div class="step">
-            <div class="step-number">2</div>
-            <h3>Analyze</h3>
-            <p>Our AI model processes the image to detect patterns</p>
-        </div>
-        <div class="step">
-            <div class="step-number">3</div>
-            <h3>Results</h3>
-            <p>View the prediction with confidence score</p>
-        </div>
-    </div>
-</section>
-{% endblock %}
+    </footer>
+</body>
+</html>

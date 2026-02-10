@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Login - MediAlert</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 4rem auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .login-header h1 {
+            color: #1e3a5f;
+            margin-bottom: 0.5rem;
+        }
+        .login-header p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #1e3a5f;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        input:focus {
+            outline: none;
+            border-color: #4a90b8;
+            box-shadow: 0 0 0 3px rgba(74, 144, 184, 0.1);
+        }
+        .login-btn {
+            width: 100%;
+            padding: 0.875rem;
+            background: #1e3a5f;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .login-btn:hover {
+            background: #2d5a8a;
+        }
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+        .error-message.show {
+            display: block;
+        }
+        .test-credentials {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+        .test-credentials h3 {
+            color: #0369a1;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .test-credentials p {
+            color: #0c4a6e;
+            font-size: 0.85rem;
+            margin: 0.25rem 0;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        .back-link a {
+            color: #4a90b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <a href="/" class="logo">
+                <span class="logo-icon">🏥</span>
+                <span>MediAlert</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>Hospital Portal</h1>
+                <p>Sign in to upload and analyze X-rays</p>
+            </div>
+
+            {% if error %}
+            <div class="error-message show">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST">
+                <div class="form-group">
+                    <label for="hospital_id">Hospital ID (UUID)</label>
+                    <input type="text" id="hospital_id" name="hospital_id" required placeholder="Enter your hospital ID">
+                </div>
+
+                <div class="form-group">
+                    <label for="api_key">API Key</label>
+                    <input type="password" id="api_key" name="api_key" required placeholder="Enter your API key">
+                </div>
+
+                <button type="submit" class="login-btn">Sign In</button>
+            </form>
+
+            <div class="test-credentials">
+                <h3>🧪 Test Credentials</h3>
+                <p><strong>For testing:</strong> Check your Supabase database table "hospitals" for valid Hospital ID and API Key combinations.</p>
+                <p style="margin-top: 0.5rem;">Default hospitals have been pre-populated in the database.</p>
+            </div>
+
+            <div class="back-link">
+                <a href="/">← Back to Home</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-info">
+                <p>&copy; 2026 MediAlert Hospital Portal</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
