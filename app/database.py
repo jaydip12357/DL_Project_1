@@ -197,3 +197,111 @@ def get_active_alerts() -> list:
         .execute()
 
     return response.data
+
+
+# Time-series data functions for predictions
+def get_regional_timeseries(region_id: str = None, region_type: str = 'country', days: int = 30) -> list:
+    """Get time-series data for a region (for forecasting)."""
+    supabase = get_supabase_client()
+
+    query = supabase.table('regional_summary') \
+        .select('date, case_count, pneumonia_count, severe_count, deaths, region_name, region_id') \
+        .eq('region_type', region_type) \
+        .gte('date', f'now - interval \'{days} days\'') \
+        .order('date', desc=False)
+
+    if region_id:
+        query = query.eq('region_id', region_id)
+
+    response = query.execute()
+    return response.data
+
+
+def get_hospital_timeseries(hospital_id: str = None, days: int = 30) -> list:
+    """Get time-series data for a hospital (for forecasting)."""
+    supabase = get_supabase_client()
+
+    query = supabase.table('case_summary') \
+        .select('date, case_count, pneumonia_count, severe_count, deaths, hospital_id') \
+        .gte('date', f'now - interval \'{days} days\'') \
+        .order('date', desc=False)
+
+    if hospital_id:
+        query = query.eq('hospital_id', hospital_id)
+
+    response = query.execute()
+    return response.data
+
+
+def get_resource_timeseries(hospital_id: str = None, days: int = 30) -> list:
+    """Get resource availability time-series (beds, ventilators, oxygen)."""
+    supabase = get_supabase_client()
+
+    query = supabase.table('resources') \
+        .select('date, hospital_id, icu_beds_available, ventilators_available, oxygen_supply_days, staff_available') \
+        .gte('date', f'now - interval \'{days} days\'') \
+        .order('date', desc=False)
+
+    if hospital_id:
+        query = query.eq('hospital_id', hospital_id)
+
+    response = query.execute()
+    return response.data
+
+
+def get_current_hospital_capacity(hospital_id: str = None) -> list:
+    """Get current hospital capacity (total beds, ICU beds) and latest resource availability."""
+    supabase = get_supabase_client()
+
+    # Get hospital capacity
+    query = supabase.table('hospitals') \
+        .select('id, name, city, state, country, total_beds, icu_beds')
+
+    if hospital_id:
+        query = query.eq('id', hospital_id)
+
+    hospitals = query.execute().data
+
+    # Get latest resource data for each hospital
+    for hospital in hospitals:
+        resource_query = supabase.table('resources') \
+            .select('icu_beds_available, ventilators_available, oxygen_supply_days, staff_available, date') \
+            .eq('hospital_id', hospital['id']) \
+            .order('date', desc=True) \
+            .limit(1)
+
+        resource_data = resource_query.execute().data
+        if resource_data:
+            hospital['latest_resources'] = resource_data[0]
+        else:
+            hospital['latest_resources'] = None
+
+    return hospitals
+
+
+def get_regional_summary_latest(region_type: str = 'country') -> list:
+    """Get latest regional summary data."""
+    supabase = get_supabase_client()
+
+    # Get the most recent date first
+    date_response = supabase.table('regional_summary') \
+        .select('date') \
+        .eq('region_type', region_type) \
+        .order('date', desc=True) \
+        .limit(1) \
+        .execute()
+
+    if not date_response.data:
+        return []
+
+    latest_date = date_response.data[0]['date']
+
+    # Get all regions for that date
+    response = supabase.table('regional_summary') \
+        .select('*') \
+        .eq('region_type', region_type) \
+        .eq('date', latest_date) \
+        .order('case_count', desc=True) \
+        .execute()
+
+    return response.data

@@ -270,6 +270,14 @@
 
     <main class="main">
         <div class="container">
+            <!-- Navigation -->
+            <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 2px solid #e8e4df; padding-bottom: 0.5rem;">
+                <a href="/surveillance" style="padding: 0.75rem 1.5rem; text-decoration: none; color: #d4746a; font-weight: 600; border-bottom: 3px solid #d4746a; margin-bottom: -2px;">Dashboard</a>
+                <a href="/surveillance/predictions" style="padding: 0.75rem 1.5rem; text-decoration: none; color: #6b6b6b; font-weight: 600; border-bottom: 3px solid transparent; transition: all 0.3s ease; margin-bottom: -2px;" onmouseover="this.style.color='#d4746a'" onmouseout="this.style.color='#6b6b6b'">Predictions</a>
+                <a href="/surveillance/alerts" style="padding: 0.75rem 1.5rem; text-decoration: none; color: #6b6b6b; font-weight: 600; border-bottom: 3px solid transparent; transition: all 0.3s ease; margin-bottom: -2px;" onmouseover="this.style.color='#d4746a'" onmouseout="this.style.color='#6b6b6b'">Alerts</a>
+                <a href="/surveillance/hospitals" style="padding: 0.75rem 1.5rem; text-decoration: none; color: #6b6b6b; font-weight: 600; border-bottom: 3px solid transparent; transition: all 0.3s ease; margin-bottom: -2px;" onmouseover="this.style.color='#d4746a'" onmouseout="this.style.color='#6b6b6b'">Hospitals</a>
+            </div>
+
             <div class="dashboard-header">
                 <h1>🌍 Real-Time Pandemic Surveillance</h1>
                 <p>Global outbreak tracking and resource allocation</p>
@@ -296,6 +304,20 @@
                     <div class="metric-label">Deaths</div>
                     <div class="metric-value">{{ (global_stats.deaths / 1000)|round(1) }}K</div>
                     <div class="metric-change">CFR: {{ ((global_stats.deaths / global_stats.case_count * 100) if global_stats.case_count > 0 else 0)|round(2) }}%</div>
+                </div>
+            </div>
+
+            <!-- NEW: Predictions Feature Highlight -->
+            <div class="card" style="background: linear-gradient(135deg, #fef3e7 0%, #fce4d6 100%); border: 3px solid #d4746a; margin-bottom: 1.5rem; cursor: pointer; transition: all 0.3s ease;" onclick="window.location.href='/surveillance/predictions'" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 32px rgba(212, 116, 106, 0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow=''">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h2 style="margin: 0 0 0.5rem 0; color: #d4746a;">📊 NEW: AI-Powered Predictions</h2>
+                        <p style="margin: 0; color: #6b6b6b; font-size: 1rem; line-height: 1.6;">
+                            <strong>Get 7-day forecasts, rapid growth alerts, and resource predictions</strong><br>
+                            View which cities need immediate attention • Predict bed & ventilator shortages • Track doubling times
+                        </p>
+                    </div>
+                    <div style="font-size: 3rem;">→</div>
                 </div>
             </div>
 
