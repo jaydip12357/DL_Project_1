@@ -9,7 +9,7 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from app.utils import allowed_file, validate_file_size, generate_unique_filename, get_file_extension
+from website.utils import allowed_file, validate_file_size, generate_unique_filename, get_file_extension
 
 
 class TestAllowedFile:
@@ -44,7 +44,7 @@ class TestAllowedFile:
 class TestValidateFileSize:
     """Tests for file size validation."""
     
-    @patch('app.utils.Config')
+    @patch('website.utils.Config')
     def test_accepts_small_file(self, mock_config):
         mock_config.MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10MB
         
@@ -53,7 +53,7 @@ class TestValidateFileSize:
         
         assert validate_file_size(fake_file) is True
     
-    @patch('app.utils.Config')
+    @patch('website.utils.Config')
     def test_rejects_large_file(self, mock_config):
         mock_config.MAX_FILE_SIZE_BYTES = 1000  # 1KB limit for testing
         
@@ -62,7 +62,7 @@ class TestValidateFileSize:
         
         assert validate_file_size(fake_file) is False
     
-    @patch('app.utils.Config')
+    @patch('website.utils.Config')
     def test_resets_file_pointer(self, mock_config):
         mock_config.MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024
         

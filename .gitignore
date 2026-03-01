@@ -53,3 +53,7 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Dataset (too large for git — place manually in data/raw/chest_xray/)
+data/raw/chest_xray/
+data/raw/*.zip

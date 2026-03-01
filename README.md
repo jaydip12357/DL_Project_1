@@ -1,160 +1,234 @@
-# MediAlert - Pneumonia Detection & Pandemic Surveillance Platform
+# MediAlert — Pneumonia Detection & Pandemic Surveillance Platform
 
-A deep learning-powered web application for analyzing chest X-ray images to detect pneumonia and track pandemic outbreaks in real time. Built to support hospitals and public health authorities in monitoring, detecting, and responding to respiratory disease outbreaks such as pneumonia pandemics.
+A deep learning-powered web application for analyzing chest X-ray images to detect pneumonia and track pandemic outbreaks in real time. Built to support hospitals and public health authorities in monitoring, detecting, and responding to respiratory disease outbreaks.
+
+---
 
 ## Project Overview
 
-MediAlert addresses the critical need for rapid, scalable pneumonia detection during pandemic scenarios. By combining AI-driven chest X-ray analysis with a real-time surveillance dashboard, the platform enables:
+MediAlert combines AI-driven chest X-ray analysis with a real-time pandemic surveillance dashboard to enable:
 
 - **Early outbreak detection** through automated X-ray screening at scale
 - **Real-time pandemic monitoring** with global and regional dashboards
-- **Hospital resource coordination** by tracking case loads, ICU capacity, and severity trends
-- **Alert-based response** with automated notifications for case surges and capacity thresholds
+- **Hospital resource coordination** tracking case loads, ICU capacity, and severity trends
+- **Automated alerts** for case surges and hospital capacity warnings
+
+---
 
 ## Features
 
 - Upload chest X-ray images via drag-and-drop or file picker
-- Get instant pneumonia predictions with confidence scores from a deep learning model
-- View analysis heatmaps highlighting regions of concern
+- Instant pneumonia predictions with confidence scores from an external deep learning model API
 - Real-time pandemic surveillance dashboard with global/regional statistics
-- Hospital portal for managing uploads and viewing patient analysis results
-- Automated alert system for outbreak surges and hospital capacity warnings
-- Responsive design for mobile and desktop
+- Hospital portal for managing uploads and viewing analysis results
+- Automated alert engine for outbreak surges and capacity warnings
+- Predictive analytics: 7-day case forecasting and growth metrics
 - RESTful API endpoints for data integration
+- Responsive design for mobile and desktop
+
+---
 
 ## Technology Stack
 
-- **Backend**: Python 3.10, Flask
-- **Frontend**: HTML5, CSS3, JavaScript (vanilla)
-- **Database**: Supabase (PostgreSQL)
-- **ML Model**: External deep learning model API for pneumonia detection (trained separately)
-- **HTTP Client**: Requests
-- **Deployment**: Railway (with Gunicorn)
+| Layer | Technology |
+|-------|-----------|
+| Backend | Python 3.11, Flask 3.0 |
+| Frontend | HTML5, CSS3, JavaScript (vanilla) |
+| Database | Supabase (PostgreSQL) |
+| ML Model | External deep learning API (pneumonia detection) |
+| ML Analytics | scikit-learn, pandas, numpy |
+| Deployment | Render (Gunicorn) |
+
+---
 
 ## Architecture
 
 ```
-User Browser --> Web App (Flask/Railway) --> Model API (External) --> Response --> User
-                        |
-                        v
-                  Supabase (PostgreSQL)
-                  (Patient data, alerts, surveillance)
+User Browser
+     │
+     ▼
+Web App (Flask / Render)
+     │                  └──► Model API (external) ──► Prediction result
+     │
+     ▼
+Supabase (PostgreSQL)
+(hospital records, case summaries, alerts, surveillance data)
 ```
 
-The web application serves as the frontend and API layer. It forwards X-ray images to an external deep learning model API for inference and stores results in the database for surveillance and reporting.
+The web app forwards X-ray images to an external pneumonia detection model API and stores results in Supabase for surveillance and reporting.
+
+---
 
 ## Project Structure
 
 ```
-DL_Project_1/
-|-- README.md                <- Description of project and how to set up and run it
-|-- requirements.txt         <- Requirements file to document dependencies
-|-- setup_database.py        <- Script to set up project database
-|-- app/                     <- Main application package
-|   |-- main.py              <- Flask routes and application entry point
-|   |-- config.py            <- Configuration from environment variables
-|   |-- api_client.py        <- Model API client for predictions
-|   |-- database.py          <- Supabase database integration
-|   |-- utils.py             <- Utility functions
-|   |-- __init__.py
-|-- scripts/                 <- Directory for pipeline scripts or utility scripts
-|-- models/                  <- Directory for trained models
-|-- data/                    <- Directory for project data
-|   |-- raw/                 <- Raw data or script to download
-|   |-- processed/           <- Processed data
-|   |-- outputs/             <- Output data
-|-- notebooks/               <- Directory for exploration notebooks (not graded)
-|-- templates/               <- HTML templates (Jinja2)
-|   |-- base.html
-|   |-- index.html
-|   |-- error.html
-|   |-- hospital/            <- Hospital portal templates
-|   |-- surveillance/        <- Surveillance dashboard templates
-|-- static/                  <- Static assets
-|   |-- css/
-|   |-- js/
-|-- tests/                   <- Unit tests
-|-- docs/                    <- Documentation
-|-- uploads/                 <- Upload directory for X-ray images
-|-- Procfile                 <- Deployment config (Gunicorn)
-|-- runtime.txt              <- Python version specification
-|-- database_schema.sql      <- Database schema definition
-|-- .env.example             <- Environment variable template
-|-- .gitignore               <- Git ignore file
+├── README.md               <- description of project and how to set up and run it
+├── requirements.txt        <- requirements file to document dependencies
+├── Makefile                <- setup and run project from command line
+├── setup.py                <- script to set up project (directories, deps, config check)
+├── main.py                 <- main entry point to run the web application
+│
+├── website/                <- Flask web application
+│   ├── __init__.py
+│   ├── main.py             <- Flask routes and request handlers
+│   ├── config.py           <- configuration loaded from environment variables
+│   ├── api_client.py       <- HTTP client for external ML model API
+│   ├── database.py         <- Supabase database integration layer
+│   └── utils.py            <- file validation and utility helpers
+│
+├── models/                 <- ML model code (forecasting and alert engine)
+│   ├── __init__.py
+│   ├── predictions.py      <- CaseForecastModel, GrowthAnalyzer, ResourceDemandPredictor
+│   └── alerts.py           <- AlertEngine (surge, capacity, growth alerts)
+│
+├── scripts/                <- pipeline and utility scripts
+│   ├── make_dataset.py     <- verify / prepare chest X-ray dataset
+│   ├── build_features.py   <- feature extraction pipeline
+│   ├── model.py            <- train model / run offline predictions (CLI)
+│   └── setup_database.py   <- initialize Supabase database schema
+│
+├── data/                   <- project data
+│   ├── raw/                <- raw data (place chest_xray/ folder here)
+│   ├── processed/          <- processed feature data
+│   ├── outputs/            <- output data
+│   └── database_schema.sql <- Supabase SQL schema definition
+│
+├── notebooks/              <- exploration notebooks (not graded)
+│
+├── templates/              <- Jinja2 HTML templates
+│   ├── base.html
+│   ├── index.html
+│   ├── error.html
+│   ├── results.html
+│   ├── hospital/           <- hospital portal templates
+│   │   ├── login.html
+│   │   ├── dashboard.html
+│   │   ├── upload.html
+│   │   └── results.html
+│   └── surveillance/       <- surveillance dashboard templates
+│       ├── dashboard.html
+│       ├── alerts.html
+│       └── predictions.html
+│
+├── static/                 <- static assets
+│   ├── css/style.css
+│   └── js/app.js
+│
+├── tests/                  <- unit tests
+│   ├── test_api_client.py
+│   ├── test_utils.py
+│   └── test_predictions.py
+│
+├── Procfile                <- Render/Gunicorn deployment config
+├── runtime.txt             <- Python version (3.11.0)
+├── .env.example            <- environment variable template
+└── .gitignore
 ```
+
+---
 
 ## Setup
 
 ### Prerequisites
 
-- Python 3.10+
+- Python 3.11+
 - pip
+- A [Supabase](https://supabase.com) project (free tier works)
+- External model API URL (your team's deployed pneumonia detection model)
 
 ### Installation
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd DL_Project_1
-   ```
+**1. Clone the repository:**
+```bash
+git clone https://github.com/jaydip12357/DL_Project_1.git
+cd DL_Project_1
+git checkout final_version
+```
 
-2. Create a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+**2. Create a virtual environment:**
+```bash
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+```
 
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+**3. Install dependencies:**
+```bash
+pip install -r requirements.txt
+# or:
+make install
+```
 
-4. Create a `.env` file (see `.env.example` for template):
-   ```
-   MODEL_API_URL=<your-model-api-url>/predict
-   MODEL_API_HEALTH_URL=<your-model-api-url>/health
-   MODEL_API_KEY=<optional-api-key>
-   SECRET_KEY=<generate-a-random-key>
-   SUPABASE_URL=<your-supabase-url>
-   SUPABASE_KEY=<your-supabase-key>
-   ```
+**4. Configure environment variables:**
+```bash
+cp .env.example .env
+# Edit .env and fill in your credentials
+```
 
-5. Initialize the database:
-   ```bash
-   python setup_database.py
-   ```
+Required `.env` values:
+```
+MODEL_API_URL=https://<your-model-api>/predict
+MODEL_API_HEALTH_URL=https://<your-model-api>/health
+SUPABASE_URL=https://<your-project>.supabase.co
+SUPABASE_KEY=<your-supabase-anon-key>
+SECRET_KEY=<any-random-string>
+```
 
-6. Run the development server:
-   ```bash
-   python -m flask --app app.main run --debug
-   ```
+**5. Initialize the database:**
+```bash
+python scripts/setup_database.py
+# or:
+make setup
+```
 
-7. Open http://localhost:5000
+**6. Run the application:**
+```bash
+python main.py
+# or:
+make run
+```
+
+Open **http://localhost:5000** in your browser.
+
+---
+
+## Makefile Commands
+
+```bash
+make install   # pip install -r requirements.txt
+make setup     # run setup.py + setup_database.py
+make run       # python main.py
+make test      # pytest tests/ -v
+make clean     # remove __pycache__ and .pyc files
+```
+
+---
 
 ## Environment Variables
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `MODEL_API_URL` | Yes | - | URL of the model prediction endpoint |
-| `MODEL_API_HEALTH_URL` | No | - | URL for model API health checks |
-| `MODEL_API_KEY` | No | - | API key if authentication is required |
-| `API_TIMEOUT_SECONDS` | No | 10 | Timeout for API requests |
-| `MAX_FILE_SIZE_MB` | No | 10 | Maximum upload file size |
+| `MODEL_API_URL` | Yes | — | Prediction endpoint of the external ML model |
+| `MODEL_API_HEALTH_URL` | No | — | Health check URL for the model API |
+| `MODEL_API_KEY` | No | — | API key if the model requires authentication |
+| `SUPABASE_URL` | Yes | — | Supabase project URL |
+| `SUPABASE_KEY` | Yes | — | Supabase anon/service key |
 | `SECRET_KEY` | No | dev-key | Flask session secret key |
-| `DEBUG` | No | False | Enable debug mode |
-| `SUPABASE_URL` | Yes | - | Supabase project URL |
-| `SUPABASE_KEY` | Yes | - | Supabase API key |
-| `MAPBOX_ACCESS_TOKEN` | No | - | Mapbox token for map visualizations |
+| `DEBUG` | No | False | Enable Flask debug mode |
+| `API_TIMEOUT_SECONDS` | No | 30 | Timeout for model API requests |
+| `MAX_FILE_SIZE_MB` | No | 10 | Maximum upload file size |
+| `MAPBOX_ACCESS_TOKEN` | No | — | Mapbox token for map visualizations |
 
-## Model API Integration
+---
 
-The application expects the model API to follow this contract:
+## Model API Contract
+
+The app sends X-ray images to an external model API. The API must accept:
 
 **Request:**
 ```
 POST /predict
 Content-Type: multipart/form-data
-Body: image (file)
+Body: image (file field)
 ```
 
 **Response:**
@@ -165,43 +239,70 @@ Body: image (file)
   "probabilities": {"NORMAL": 0.13, "PNEUMONIA": 0.87},
   "processing_time_ms": 245,
   "model_version": "v1.2",
-  "heatmap": "<base64-encoded-image>"
+  "heatmap": "<optional-base64-image>"
 }
 ```
 
-See [docs/API_INTEGRATION.md](docs/API_INTEGRATION.md) for details.
+If the model API is unavailable, the app falls back to a deterministic demo result so the UI always responds.
+
+---
+
+## Dataset
+
+The chest X-ray dataset used for model training is the [Kaggle Chest X-Ray Images (Pneumonia)](https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia) dataset.
+
+Place it under `data/raw/chest_xray/` with the following structure:
+```
+data/raw/chest_xray/
+    train/   NORMAL/   PNEUMONIA/
+    val/     NORMAL/   PNEUMONIA/
+    test/    NORMAL/   PNEUMONIA/
+```
+
+Run `python scripts/make_dataset.py` to verify the layout.
+
+---
 
 ## Testing
 
-Run the test suite:
 ```bash
 python -m pytest tests/ -v
 ```
 
-## Deployment
+Tests cover:
+- `test_api_client.py` — model API request/response handling
+- `test_utils.py` — file validation utilities
+- `test_predictions.py` — forecasting models and alert engine
 
-See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for Railway deployment instructions.
+---
+
+## Deployment (Render)
+
+1. Push the `final_version` branch to GitHub
+2. Create a new **Web Service** on [render.com](https://render.com)
+3. Connect to `https://github.com/jaydip12357/DL_Project_1`
+4. Set **Branch** to `final_version`
+5. Set **Build Command**: `pip install -r requirements.txt`
+6. Set **Start Command**: `gunicorn website.main:app`
+7. Add all required environment variables in the Render dashboard
+
+---
 
 ## AI Usage Disclosure
 
-This project used **Claude (Anthropic)** as an AI coding assistant for the **web development** components of the application. Specifically, Claude was used to help build:
+This project used **Claude (Anthropic)** as an AI coding assistant for the web application components. Claude was used to help build:
 
-- The Flask web application (`app/` directory: routes, configuration, API client, database layer, utilities)
-- HTML/CSS/JS frontend templates and static assets (`templates/`, `static/`)
+- Flask web application (`website/` directory: routes, config, API client, database layer, utilities)
+- HTML/CSS/JS frontend (`templates/`, `static/`)
+- ML analytics module (`models/predictions.py`, `models/alerts.py`)
 - Unit tests (`tests/`)
+- Pipeline scripts (`scripts/`)
 - Database schema and setup scripts
-- Deployment configuration and documentation
+- Project structure and deployment configuration
 
-The following merged pull requests were developed with Claude AI assistance:
-- PR #5: Deployment guide and quick-start guide
-- PR #6: Fix conflicting dependency versions
-- PR #7: Database setup script
-- PR #8: Testing and project summary documentation
-- PR #9: Website interactivity and design improvements
-- PR #10: X-ray upload UI and error handling
-- PR #11: API connection and session configuration fixes
+**Claude was NOT used for training the deep learning pneumonia detection model.** The model was developed and trained independently by the team.
 
-**Claude was NOT used for the deep learning model training.** The pneumonia detection model was developed and trained independently by the team.
+---
 
 ## Team Members
 
@@ -209,9 +310,13 @@ The following merged pull requests were developed with Claude AI assistance:
 - **Hanfu**
 - **Keming**
 
+---
+
 ## Medical Disclaimer
 
 This application is for **educational and research purposes only**. It is not intended for clinical diagnosis. Always consult qualified healthcare professionals for medical advice.
+
+---
 
 ## License
 

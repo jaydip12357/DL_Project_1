@@ -38,7 +38,7 @@ def run_web_app():
     print("\nMake sure you have configured .env with required credentials.")
     print("See .env.example for template.\n")
     
-    from app.main import app
+    from website.main import app
     app.run(debug=True, port=5000, host='0.0.0.0')
 
 def main():
