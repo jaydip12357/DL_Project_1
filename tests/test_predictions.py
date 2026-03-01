@@ -6,11 +6,11 @@ https://claude.ai
 """
 
 from datetime import datetime, timedelta
-from app.models.predictions import (
+from models.predictions import (
     CaseForecastModel, ResourceDemandPredictor, GrowthAnalyzer,
     generate_forecast_report
 )
-from app.models.alerts import AlertEngine
+from models.alerts import AlertEngine
 
 
 def generate_sample_data(days=30, start_value=100, growth_rate=1.15):

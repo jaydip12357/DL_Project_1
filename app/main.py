@@ -13,11 +13,11 @@ from .database import (
     get_active_alerts, get_regional_timeseries, get_hospital_timeseries,
     get_resource_timeseries, get_current_hospital_capacity, get_regional_summary_latest
 )
-from .models.predictions import (
+from models.predictions import (
     CaseForecastModel, ResourceDemandPredictor, GrowthAnalyzer,
     generate_forecast_report
 )
-from .models.alerts import AlertEngine
+from models.alerts import AlertEngine
 
 
 app = Flask(__name__,

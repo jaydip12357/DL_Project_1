@@ -3,9 +3,9 @@
 
 import os
 from supabase import create_client, Client
-from .config import Config
 
-# Initialize Supabase client
+
+# Supabase client factory
 def get_supabase_client() -> Client:
     """Get or create Supabase client."""
     supabase_url = os.getenv('SUPABASE_URL')

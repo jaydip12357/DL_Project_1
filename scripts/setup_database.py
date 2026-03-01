@@ -27,11 +27,12 @@ def main():
     supabase = create_client(supabase_url, supabase_key)
 
     try:
-        with open('database_schema.sql', 'r') as f:
+        schema_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'database_schema.sql')
+        with open(schema_path, 'r') as f:
             sql_script = f.read()
         print("Schema file loaded")
     except FileNotFoundError:
-        print("Error: database_schema.sql not found")
+        print("Error: data/database_schema.sql not found")
         return
 
     print("Creating database tables...")

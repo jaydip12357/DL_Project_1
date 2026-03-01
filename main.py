@@ -26,7 +26,7 @@ def run_setup():
         os.makedirs(dir_path, exist_ok=True)
     
     print("Step 2: Setting up database...")
-    os.system("python setup_database.py")
+    os.system("python scripts/setup_database.py")
     
     print("\nSetup complete!")
     print("Next: Run 'python main.py' to start the application")

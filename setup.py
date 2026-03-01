@@ -83,7 +83,7 @@ def main():
     print("Setup complete!")
     print("=" * 60)
     print("\nNext steps:")
-    print("  1. Ensure database is initialized: python setup_database.py")
+    print("  1. Ensure database is initialized: python scripts/setup_database.py")
     print("  2. Run the application: python main.py")
     print("\n")
 
