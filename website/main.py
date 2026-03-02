@@ -13,11 +13,38 @@ from .database import (
     get_active_alerts, get_regional_timeseries, get_hospital_timeseries,
     get_resource_timeseries, get_current_hospital_capacity, get_regional_summary_latest
 )
-from models.predictions import (
-    CaseForecastModel, ResourceDemandPredictor, GrowthAnalyzer,
-    generate_forecast_report
-)
-from models.alerts import AlertEngine
+# Analytics models are imported lazily to avoid heavy pandas/sklearn
+# loading at startup (important for Render free-tier 512MB memory limit)
+_analytics_ready = False
+CaseForecastModel = None
+ResourceDemandPredictor = None
+GrowthAnalyzer = None
+generate_forecast_report = None
+AlertEngine = None
+
+
+def _load_analytics():
+    """Load analytics models on first use."""
+    global _analytics_ready, CaseForecastModel, ResourceDemandPredictor
+    global GrowthAnalyzer, generate_forecast_report, AlertEngine
+    if _analytics_ready:
+        return
+    try:
+        from models.predictions import (
+            CaseForecastModel as _CFM,
+            ResourceDemandPredictor as _RDP,
+            GrowthAnalyzer as _GA,
+            generate_forecast_report as _GFR,
+        )
+        from models.alerts import AlertEngine as _AE
+        CaseForecastModel = _CFM
+        ResourceDemandPredictor = _RDP
+        GrowthAnalyzer = _GA
+        generate_forecast_report = _GFR
+        AlertEngine = _AE
+    except Exception as e:
+        print(f"Warning: analytics models unavailable: {e}")
+    _analytics_ready = True
 
 
 app = Flask(__name__,
@@ -393,6 +420,7 @@ def surveillance_alerts():
 @app.route('/surveillance/predictions')
 def surveillance_predictions():
     """Policymaker predictions dashboard - forecasts and alerts."""
+    _load_analytics()
     # Get growth metrics for top regions
     regions = get_regional_summary_latest(region_type='country')
 
@@ -589,6 +617,7 @@ def api_regional_predictions(region_id):
         - region_type: 'country', 'state', or 'city' (default: 'country')
         - forecast_days: Number of days to forecast (default: 7)
     """
+    _load_analytics()
     try:
         region_type = request.args.get('region_type', default='country')
         forecast_days = request.args.get('forecast_days', default=7, type=int)
@@ -643,9 +672,11 @@ def api_regional_predictions(region_id):
 def api_hospital_predictions(hospital_id):
     """Generate 7-day forecast for a specific hospital.
 
+
     Query params:
         - forecast_days: Number of days to forecast (default: 7)
     """
+    _load_analytics()
     try:
         forecast_days = request.args.get('forecast_days', default=7, type=int)
 
@@ -702,6 +733,7 @@ def api_growth_alerts():
         - region_type: 'country', 'state', or 'city' (default: 'country')
         - threshold: Growth rate % to trigger alert (default: 50)
     """
+    _load_analytics()
     try:
         region_type = request.args.get('region_type', default='country')
         threshold = request.args.get('threshold', default=50.0, type=float)
@@ -756,6 +788,7 @@ def api_capacity_alerts():
         - region_type: 'country', 'state', or 'city' (default: 'country')
         - forecast_days: Days to forecast (default: 7)
     """
+    _load_analytics()
     try:
         region_type = request.args.get('region_type', default='country')
         forecast_days = request.args.get('forecast_days', default=7, type=int)
@@ -834,6 +867,7 @@ def api_growth_metrics():
     Query params:
         - region_type: 'country', 'state', or 'city' (default: 'country')
     """
+    _load_analytics()
     try:
         region_type = request.args.get('region_type', default='country')
 
