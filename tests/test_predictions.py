@@ -47,22 +47,22 @@ def test_case_forecast():
     success = model.fit(timeseries)
 
     if success:
-        print("✅ Model trained successfully")
+        print(" Model trained successfully")
 
         # Generate 7-day forecast
         forecast = model.forecast(days=7)
 
         if forecast['success']:
-            print(f"\n📊 7-Day Forecast ({forecast['model_type']}):")
+            print(f"\n 7-Day Forecast ({forecast['model_type']}):")
             print("-" * 60)
             for pred in forecast['predictions']:
                 print(f"  {pred['date']}: {pred['predicted_cases']} cases "
                       f"(±{pred['confidence_interval']})")
-            print("\n✅ Forecast generated successfully\n")
+            print("\n Forecast generated successfully\n")
         else:
-            print(f"❌ Forecast failed: {forecast.get('error')}\n")
+            print(f" Forecast failed: {forecast.get('error')}\n")
     else:
-        print("❌ Model training failed\n")
+        print(" Model training failed\n")
 
 
 def test_resource_prediction():
@@ -92,15 +92,15 @@ def test_resource_prediction():
     result = predictor.predict_resource_needs(case_forecast, current_capacity)
 
     if result['success']:
-        print("✅ Resource predictions generated\n")
-        print("📋 Summary:")
+        print(" Resource predictions generated\n")
+        print(" Summary:")
         print(f"  Peak Date: {result['summary']['peak_date']}")
         print(f"  Peak Cases: {result['summary']['peak_cases']}")
         print(f"  Peak ICU Beds Needed: {result['summary']['peak_icu_beds_needed']}")
         print(f"  Peak Ventilators Needed: {result['summary']['peak_ventilators_needed']}")
         print(f"  Max ICU Utilization: {result['summary']['max_icu_utilization']}%")
 
-        print("\n📊 Daily Resource Timeline:")
+        print("\n Daily Resource Timeline:")
         print("-" * 60)
         for day in result['timeline'][:3]:  # Show first 3 days
             print(f"  {day['date']}:")
@@ -109,9 +109,9 @@ def test_resource_prediction():
             print(f"    Ventilators Needed: {day['ventilators_needed']}")
             print(f"    Oxygen Units: {day['oxygen_units_needed']}")
 
-        print("\n✅ Resource prediction successful\n")
+        print("\n Resource prediction successful\n")
     else:
-        print(f"❌ Resource prediction failed: {result.get('error')}\n")
+        print(f" Resource prediction failed: {result.get('error')}\n")
 
 
 def test_growth_analyzer():
@@ -127,8 +127,8 @@ def test_growth_analyzer():
     metrics = GrowthAnalyzer.calculate_growth_metrics(timeseries)
 
     if metrics['success']:
-        print("✅ Growth metrics calculated\n")
-        print("📈 Metrics:")
+        print(" Growth metrics calculated\n")
+        print(" Metrics:")
         print(f"  Current Cases: {metrics['current_cases']}")
         print(f"  3-Day Growth Rate: {metrics['growth_rate_3day']}%")
         if metrics['doubling_time_days']:
@@ -139,15 +139,15 @@ def test_growth_analyzer():
         # Test surge detection
         surge = GrowthAnalyzer.detect_surge(timeseries, threshold=50.0)
 
-        print("\n🚨 Surge Detection:")
+        print("\n Surge Detection:")
         print(f"  Is Surge: {surge['is_surge']}")
         print(f"  Severity: {surge['severity']}")
         if surge['alert_message']:
             print(f"  Alert: {surge['alert_message']}")
 
-        print("\n✅ Growth analysis successful\n")
+        print("\n Growth analysis successful\n")
     else:
-        print(f"❌ Growth analysis failed: {metrics.get('error')}\n")
+        print(f" Growth analysis failed: {metrics.get('error')}\n")
 
 
 def test_alert_engine():
@@ -168,7 +168,7 @@ def test_alert_engine():
         timeseries_data=timeseries
     )
 
-    print(f"✅ Generated {len(alerts)} alerts\n")
+    print(f" Generated {len(alerts)} alerts\n")
 
     for i, alert in enumerate(alerts, 1):
         print(f"Alert {i}:")
@@ -202,7 +202,7 @@ def test_alert_engine():
         current_capacity=current_capacity
     )
 
-    print(f"✅ Generated {len(capacity_alerts)} capacity alerts\n")
+    print(f" Generated {len(capacity_alerts)} capacity alerts\n")
 
     for i, alert in enumerate(capacity_alerts, 1):
         print(f"Capacity Alert {i}:")
@@ -211,7 +211,7 @@ def test_alert_engine():
         print(f"  Description: {alert['description']}")
         print()
 
-    print("✅ Alert engine test successful\n")
+    print(" Alert engine test successful\n")
 
 
 def test_full_forecast_report():
@@ -236,7 +236,7 @@ def test_full_forecast_report():
     )
 
     if report['success']:
-        print("✅ Full forecast report generated\n")
+        print(" Full forecast report generated\n")
         print(f"Region: {report['region_name']}")
         print(f"Generated At: {report['forecast_generated_at']}")
         print(f"\nForecast Days: {len(report['case_forecast'])}")
@@ -244,17 +244,17 @@ def test_full_forecast_report():
         print(f"Surge Detected: {report['surge_detection']['is_surge']}")
         print(f"Recommendations: {len(report['recommendations'])}")
 
-        print("\n💡 Recommendations:")
+        print("\n Recommendations:")
         for rec in report['recommendations']:
             print(f"  • {rec}")
 
-        print("\n✅ Full report test successful\n")
+        print("\n Full report test successful\n")
     else:
-        print(f"❌ Report generation failed: {report.get('error')}\n")
+        print(f" Report generation failed: {report.get('error')}\n")
 
 
 if __name__ == '__main__':
-    print("\n🧪 PREDICTION SYSTEM TEST SUITE")
+    print("\n PREDICTION SYSTEM TEST SUITE")
     print("=" * 60)
     print("Testing MediAlert predictive analytics components\n")
 
@@ -266,14 +266,14 @@ if __name__ == '__main__':
         test_full_forecast_report()
 
         print("=" * 60)
-        print("✅ ALL TESTS PASSED!")
+        print(" ALL TESTS PASSED!")
         print("=" * 60)
         print("\nThe prediction system is ready to use.")
         print("Access the predictions dashboard at: /surveillance/predictions")
 
     except Exception as e:
         print("\n" + "=" * 60)
-        print("❌ TEST FAILED")
+        print(" TEST FAILED")
         print("=" * 60)
         print(f"\nError: {e}")
         import traceback

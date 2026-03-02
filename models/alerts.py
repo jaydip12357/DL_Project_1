@@ -79,7 +79,7 @@ class AlertEngine:
                 'region_name': region_name,
                 'alert_type': self.TYPE_SURGE,
                 'severity': self.SEVERITY_CRITICAL if growth_rate > 100 else self.SEVERITY_HIGH,
-                'title': f"🚨 Case Surge Detected: {region_name}",
+                'title': f"Case Surge Detected: {region_name}",
                 'description': f"Cases increased by {growth_rate:.1f}% in the last 3 days. Immediate attention required.",
                 'metrics': {
                     'growth_rate': growth_rate,
@@ -101,7 +101,7 @@ class AlertEngine:
                 'region_name': region_name,
                 'alert_type': self.TYPE_RAPID_GROWTH,
                 'severity': self.SEVERITY_MEDIUM,
-                'title': f"⚠️ Rapid Growth: {region_name}",
+                'title': f"Rapid Growth: {region_name}",
                 'description': f"Cases increasing at {growth_rate:.1f}% over 3 days. Monitor closely.",
                 'metrics': {
                     'growth_rate': growth_rate,
@@ -121,7 +121,7 @@ class AlertEngine:
                 'region_name': region_name,
                 'alert_type': self.TYPE_RAPID_GROWTH,
                 'severity': self.SEVERITY_CRITICAL,
-                'title': f"🔴 Critical Doubling Time: {region_name}",
+                'title': f"Critical Doubling Time: {region_name}",
                 'description': f"Cases doubling every {doubling_time:.1f} days. Exponential growth detected.",
                 'metrics': {
                     'doubling_time': doubling_time,
@@ -171,7 +171,7 @@ class AlertEngine:
                 'region_name': region_name,
                 'alert_type': self.TYPE_CAPACITY,
                 'severity': self.SEVERITY_CRITICAL,
-                'title': f"🏥 ICU Capacity Crisis: {region_name}",
+                'title': f"ICU Capacity Crisis: {region_name}",
                 'description': f"ICU utilization will reach {max_utilization:.1f}% by {peak_date}. Shortage of {gap} beds predicted.",
                 'metrics': {
                     'max_utilization': max_utilization,
@@ -196,7 +196,7 @@ class AlertEngine:
                 'region_name': region_name,
                 'alert_type': self.TYPE_CAPACITY,
                 'severity': self.SEVERITY_HIGH,
-                'title': f"⚠️ ICU Capacity Warning: {region_name}",
+                'title': f"ICU Capacity Warning: {region_name}",
                 'description': f"ICU utilization approaching {max_utilization:.1f}% by {peak_date}. Prepare surge capacity.",
                 'metrics': {
                     'max_utilization': max_utilization,
@@ -222,7 +222,7 @@ class AlertEngine:
                 'region_name': region_name,
                 'alert_type': self.TYPE_RESOURCE_DEPLETION,
                 'severity': self.SEVERITY_HIGH,
-                'title': f"💨 Ventilator Shortage Predicted: {region_name}",
+                'title': f"Ventilator Shortage Predicted: {region_name}",
                 'description': f"Need {peak_ventilators} ventilators by {peak_date}, but only {current_ventilators} available. Gap: {ventilator_gap}",
                 'metrics': {
                     'peak_ventilators_needed': peak_ventilators,
@@ -264,7 +264,7 @@ class AlertEngine:
                     'region_name': region_name,
                     'alert_type': self.TYPE_RESOURCE_DEPLETION,
                     'severity': self.SEVERITY_CRITICAL,
-                    'title': f"🔴 Oxygen Crisis: {region_name}",
+                    'title': f"Oxygen Crisis: {region_name}",
                     'description': f"Oxygen supply will deplete in {oxygen_days} days at current consumption rate.",
                     'metrics': {
                         'oxygen_days_remaining': oxygen_days
@@ -283,7 +283,7 @@ class AlertEngine:
                     'region_name': region_name,
                     'alert_type': self.TYPE_RESOURCE_DEPLETION,
                     'severity': self.SEVERITY_MEDIUM,
-                    'title': f"⚠️ Oxygen Supply Warning: {region_name}",
+                    'title': f"Oxygen Supply Warning: {region_name}",
                     'description': f"Oxygen supply at {oxygen_days} days remaining. Replenishment needed.",
                     'metrics': {
                         'oxygen_days_remaining': oxygen_days

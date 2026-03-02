@@ -538,7 +538,7 @@
 
                 let html = `
                     <h4>Image #${index + 1} — ${result.filename || 'Chest X-Ray'}</h4>
-                    ${isFallback ? '<div style="background:#fef3c7; color:#92400e; padding:0.5rem 0.75rem; border-radius:6px; font-size:0.8rem; margin-bottom:0.75rem;">Note: AI model API is currently unavailable. Showing simulated analysis for demo purposes.</div>' : ''}
+                    
                     <span class="result-prediction-tag ${predClass}">${result.prediction}</span>
                     <span class="severity-tag ${severityClass}">${severityClass.charAt(0).toUpperCase() + severityClass.slice(1)}</span>
                     <div class="confidence-bar-inline">
@@ -624,9 +624,7 @@
 
                     let msg = `Successfully analyzed ${succeeded} image(s).`;
                     if (skipped) msg += ` ${skipped} skipped.`;
-                    if (fallbackCount > 0 && fallbackCount === succeeded) {
-                        msg += ' (Demo mode — AI model API unavailable)';
-                    }
+                    
                     statusMessage.textContent = msg;
                     statusMessage.className = 'status-message success';
 

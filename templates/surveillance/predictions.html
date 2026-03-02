@@ -247,15 +247,15 @@
         <div class="alert-summary">
             <div class="summary-card critical">
                 <h3>{{ alert_summary.by_severity.critical }}</h3>
-                <p>🔴 Critical Alerts</p>
+                <p>Critical Alerts</p>
             </div>
             <div class="summary-card high">
                 <h3>{{ alert_summary.by_severity.high }}</h3>
-                <p>🟠 High Priority</p>
+                <p>High Priority</p>
             </div>
             <div class="summary-card medium">
                 <h3>{{ alert_summary.by_severity.medium }}</h3>
-                <p>🟡 Medium Priority</p>
+                <p>Medium Priority</p>
             </div>
             <div class="summary-card">
                 <h3>{{ alert_summary.total_alerts }}</h3>
@@ -293,7 +293,7 @@
 
                     {% if alert.recommendations %}
                     <div class="recommendations">
-                        <h4>📋 Recommended Actions:</h4>
+                        <h4>Recommended Actions:</h4>
                         <ul>
                             {% for rec in alert.recommendations %}
                             <li>{{ rec }}</li>
@@ -346,10 +346,10 @@
                         <td>{{ "%.1f"|format(metric.daily_velocity) }} cases/day</td>
                         <td>
                             <span class="trend-badge {{ metric.trend }}">
-                                {% if metric.trend == 'rapid_growth' %}🔴 Rapid Growth
-                                {% elif metric.trend == 'growing' %}🟠 Growing
-                                {% elif metric.trend == 'stable' %}🟢 Stable
-                                {% elif metric.trend == 'declining' %}🔵 Declining
+                                {% if metric.trend == 'rapid_growth' %}Rapid Growth
+                                {% elif metric.trend == 'growing' %}Growing
+                                {% elif metric.trend == 'stable' %}Stable
+                                {% elif metric.trend == 'declining' %}Declining
                                 {% endif %}
                             </span>
                         </td>
@@ -378,7 +378,7 @@
 
         <!-- API Information -->
         <div class="card" style="background: #f9fafb; border: 2px solid #e5e7eb;">
-            <h2 style="color: #374151;">🔌 API Endpoints for Integration</h2>
+            <h2 style="color: #374151;">API Endpoints for Integration</h2>
             <p style="color: #6b6b6b; margin-bottom: 1rem;">
                 These endpoints can be integrated with your data pipelines:
             </p>

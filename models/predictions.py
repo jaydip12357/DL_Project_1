@@ -18,7 +18,6 @@ try:
     PROPHET_AVAILABLE = True
 except ImportError:
     PROPHET_AVAILABLE = False
-    print("Warning: Prophet not available. Using fallback linear regression.")
 
 from sklearn.linear_model import LinearRegression
 
@@ -437,11 +436,11 @@ def generate_recommendations(surge_info: Dict, resource_forecast: Dict,
     if surge_info.get('is_surge'):
         if surge_info['severity'] == 'critical':
             recommendations.append(
-                "🔴 CRITICAL: Implement immediate lockdown measures and expand testing"
+                "CRITICAL: Implement immediate lockdown measures and expand testing"
             )
         elif surge_info['severity'] == 'high':
             recommendations.append(
-                "🟠 HIGH ALERT: Increase hospital preparedness and public health messaging"
+                "HIGH ALERT: Increase hospital preparedness and public health messaging"
             )
 
     # Resource recommendations
@@ -452,18 +451,18 @@ def generate_recommendations(surge_info: Dict, resource_forecast: Dict,
         if max_util > 100:
             gap = summary.get('peak_icu_beds_needed', 0) - current_capacity.get('icu_beds', 0)
             recommendations.append(
-                f"🏥 URGENT: Procure {gap} additional ICU beds before {summary.get('peak_date')}"
+                f"URGENT: Procure {gap} additional ICU beds before {summary.get('peak_date')}"
             )
         elif max_util > 80:
             recommendations.append(
-                "⚠️ Prepare surge capacity - ICU utilization will exceed 80%"
+                "Prepare surge capacity - ICU utilization will exceed 80%"
             )
 
         # Ventilator needs
         peak_vents = summary.get('peak_ventilators_needed', 0)
         if peak_vents > 0:
             recommendations.append(
-                f"💨 Ensure availability of {peak_vents} ventilators by {summary.get('peak_date')}"
+                f"Ensure availability of {peak_vents} ventilators by {summary.get('peak_date')}"
             )
 
     # Doubling time recommendations
@@ -477,10 +476,10 @@ def generate_recommendations(surge_info: Dict, resource_forecast: Dict,
     # General recommendations
     if growth_metrics.get('trend') == 'rapid_growth':
         recommendations.append(
-            "📊 Prioritize vulnerable populations (60+) for vaccination and monitoring"
+            "Prioritize vulnerable populations (60+) for vaccination and monitoring"
         )
         recommendations.append(
-            "🧪 Scale up testing capacity to match case growth trajectory"
+            "Scale up testing capacity to match case growth trajectory"
         )
 
-    return recommendations if recommendations else ["✅ Situation stable - Continue monitoring"]
+    return recommendations if recommendations else ["Situation stable - Continue monitoring"]
