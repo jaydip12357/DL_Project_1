@@ -1,5 +1,7 @@
 # MediAlert — Pneumonia Detection & Pandemic Surveillance Platform
 
+Website = https://web-production-5e63f.up.railway.app/
+
 A deep learning-powered web application for analyzing chest X-ray images to detect pneumonia and track pandemic outbreaks in real time. Built to support hospitals and public health authorities in monitoring, detecting, and responding to respiratory disease outbreaks.
 
 ---
