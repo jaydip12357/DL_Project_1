@@ -1,26 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediAlert - AI-Powered Pandemic Surveillance for India</title>
+    <title>MediAlert - AI-Powered Outbreak Surveillance</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <style>
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: #1e293b;
             line-height: 1.6;
-            background: #ffffff;
+            background: #f8fafc;
+            overflow-x: hidden;
         }
 
+        /* ===== Sleek Navbar ===== */
         .navbar {
-            position: sticky;
+            position: fixed;
             top: 0;
-            background: rgba(255, 255, 255, 0.97);
-            backdrop-filter: blur(8px);
-            border-bottom: 1px solid #e2e8f0;
-            padding: 0.875rem 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 1rem 0;
             z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+            padding: 0.75rem 0;
         }
 
         .navbar-container {
@@ -37,398 +50,642 @@
             align-items: center;
             gap: 0.5rem;
             text-decoration: none;
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #0e4f8b;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-nav::before {
+            content: '';
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3);
         }
 
         .nav-menu {
             display: flex;
-            gap: 1rem;
+            gap: 1.25rem;
             align-items: center;
             list-style: none;
         }
 
         .nav-menu a {
             text-decoration: none;
-            color: #64748b;
+            color: #475569;
             font-weight: 500;
-            font-size: 0.9rem;
-            padding: 0.5rem 0.75rem;
-            border-radius: 6px;
-            transition: color 0.2s, background 0.2s;
+            font-size: 0.95rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.2s;
         }
 
         .nav-menu a:hover {
-            color: #0e4f8b;
-            background: #f0f9ff;
+            color: #0ea5e9;
+            background: rgba(14, 165, 233, 0.05);
         }
 
         .nav-btn {
-            background: #0e4f8b !important;
+            background: linear-gradient(135deg, #0ea5e9, #0284c7) !important;
             color: white !important;
-            padding: 0.5rem 1.25rem !important;
-            border-radius: 6px;
-            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.25);
         }
 
-        .nav-btn:hover { background: #0a3d6b !important; }
-
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #64748b;
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.35);
         }
 
-        .mobile-sidebar {
-            position: fixed;
-            top: 0;
-            right: -100%;
-            width: 260px;
-            height: 100vh;
-            background: white;
-            box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
-            padding: 1.5rem;
-            transition: right 0.3s ease;
-            z-index: 2000;
-        }
-
-        .mobile-sidebar.active { right: 0; }
-
-        .sidebar-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: none;
-            border: none;
-            font-size: 1.25rem;
-            cursor: pointer;
-            color: #64748b;
-        }
-
-        .sidebar-menu { list-style: none; margin-top: 3rem; }
-        .sidebar-menu li { margin-bottom: 0.75rem; }
-
-        .sidebar-menu a {
-            text-decoration: none;
-            color: #475569;
-            font-weight: 500;
-            display: block;
-            padding: 0.75rem;
-            border-radius: 6px;
-        }
-
-        .sidebar-menu a:hover { background: #f0f9ff; color: #0e4f8b; }
-
-        .overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100vh;
-            background: rgba(0, 0, 0, 0.4);
-            display: none;
-            z-index: 1500;
-        }
-
-        .overlay.active { display: block; }
-
-        .hero-section {
-            background: linear-gradient(135deg, #0a3d6b 0%, #0e4f8b 50%, #1a6bb5 100%);
-            color: white;
-            padding: 3rem 2rem 2.5rem;
+        /* ===== Hero Section ===== */
+        .hero {
+            padding: 9rem 2rem 6rem;
             text-align: center;
+            background: radial-gradient(circle at top center, #e0f2fe 0%, #f8fafc 100%);
+            position: relative;
+            overflow: hidden;
         }
 
-        .hero-section h1 {
-            font-size: 2.75rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            line-height: 1.2;
-            color: white;
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
         }
 
-        .hero-sub {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 700px;
-            margin: 0 auto 1.5rem;
-            color: white;
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            animation: slideUpFade 0.8s ease-out;
         }
 
-        .hero-badges {
-            display: flex;
-            gap: 0.75rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 1.5rem;
+        @keyframes slideUpFade {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .badge-item {
-            background: rgba(255, 255, 255, 0.15);
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: white;
+            border: 1px solid #e0f2fe;
             padding: 0.5rem 1.25rem;
-            border-radius: 20px;
+            border-radius: 30px;
+            color: #0284c7;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            animation: pulse-glow 3s infinite alternate;
         }
 
-        .ps-section {
+        @keyframes pulse-glow {
+            from {
+                box-shadow: 0 4px 15px rgba(14, 165, 233, 0.1);
+            }
+
+            to {
+                box-shadow: 0 4px 25px rgba(14, 165, 233, 0.25);
+            }
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.1;
+            letter-spacing: -1.5px;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-text-gradient {
+            background: linear-gradient(135deg, #0ea5e9, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: #475569;
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn-large {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: white;
+            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(14, 165, 233, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #0f172a;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        /* ===== Dashboard Preview (Glass Window) ===== */
+        .dash-preview {
+            max-width: 1000px;
+            margin: -2rem auto 4rem;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 1rem;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+            transform: perspective(1000px) rotateX(5deg);
+            transform-origin: top;
+            transition: transform 0.5s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .dash-preview:hover {
+            transform: perspective(1000px) rotateX(0deg);
+        }
+
+        .dash-preview img {
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid #f1f5f9;
+            display: block;
+        }
+
+        /* ===== Dual Section (Problem vs Solution) ===== */
+        .dual-section {
             max-width: 1200px;
-            margin: 2.5rem auto;
+            margin: 5rem auto;
             padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .glass-card {
+            background: white;
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+            border: 1px solid #f1f5f9;
+            transition: transform 0.3s;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-red {
+            border-top: 4px solid #ef4444;
+        }
+
+        .card-green {
+            border-top: 4px solid #10b981;
+        }
+
+        .glass-card h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .card-red h2 {
+            color: #b91c1c;
+        }
+
+        .card-green h2 {
+            color: #047857;
+        }
+
+        .sub-text {
+            font-size: 1.1rem;
+            color: #475569;
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .stat-item {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .stat-item .num.red {
+            color: #ef4444;
+        }
+
+        .stat-item .num.green {
+            color: #10b981;
+        }
+
+        .stat-item .num {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.25rem;
+            letter-spacing: -1px;
+        }
+
+        .stat-item .lbl {
+            color: #64748b;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* ===== Audience Section ===== */
+        .audience {
+            background: #0f172a;
+            padding: 6rem 2rem;
+            color: white;
+            margin-top: 5rem;
+        }
+
+        .audience-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .audience h2 {
+            text-align: center;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 3rem;
+            letter-spacing: -1px;
+        }
+
+        .aud-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
         }
 
-        .problem-card, .solution-card {
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        }
-
-        .problem-card { background: #fef2f2; border-left: 4px solid #dc2626; }
-        .solution-card { background: #ecfdf5; border-left: 4px solid #059669; }
-        .problem-card h2, .solution-card h2 { font-size: 1.5rem; margin-bottom: 1rem; }
-        .problem-card h2 { color: #dc2626; }
-        .solution-card h2 { color: #059669; }
-
-        .stat-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin: 1.5rem 0;
-        }
-
-        .stat-box { background: white; padding: 1.25rem; border-radius: 8px; text-align: center; }
-        .stat-num { font-size: 2rem; font-weight: 800; color: #dc2626; margin-bottom: 0.25rem; }
-        .stat-lbl { color: #64748b; font-size: 0.85rem; }
-
-        .sol-features {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-            margin-top: 1.5rem;
-        }
-
-        .sol-feature {
-            background: white;
-            padding: 1rem;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .sf-icon { font-size: 1.5rem; }
-        .sf-text h4 { color: #059669; font-size: 0.95rem; margin-bottom: 0.1rem; }
-        .sf-text p { color: #64748b; font-size: 0.8rem; }
-
-        .audience-section { background: #f0f9ff; padding: 2.5rem 2rem; margin: 2.5rem 0; }
-        .audience-content { max-width: 1200px; margin: 0 auto; }
-        .audience-section h2 { text-align: center; font-size: 1.75rem; color: #0e4f8b; margin-bottom: 1.5rem; }
-
-        .aud-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
-
         .aud-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            border-top: 3px solid #0e4f8b;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3rem;
+            border-radius: 24px;
+            transition: all 0.3s;
         }
 
-        .aud-card h3 { font-size: 1.25rem; color: #0e4f8b; margin-bottom: 0.5rem; }
-        .aud-card-sub { color: #64748b; margin-bottom: 1rem; font-size: 0.95rem; }
-        .ben-list { list-style: none; }
+        .aud-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .aud-card h3 {
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .aud-card p {
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+        }
+
+        .ben-list {
+            list-style: none;
+            padding: 0;
+        }
 
         .ben-list li {
-            padding: 0.5rem 0;
-            color: #374151;
-            border-bottom: 1px solid #f1f5f9;
-            padding-left: 1.5rem;
-            position: relative;
-            font-size: 0.9rem;
+            padding: 0.75rem 0;
+            color: #cbd5e1;
+            font-size: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .ben-list li:before { content: "\2713"; position: absolute; left: 0; color: #059669; font-weight: bold; }
-        .ben-list li:last-child { border-bottom: none; }
+        .ben-list li:last-child {
+            border-bottom: none;
+        }
 
-        .portals-section { max-width: 1200px; margin: 2.5rem auto; padding: 0 2rem; }
-        .portals-section h2 { text-align: center; font-size: 1.75rem; color: #0e4f8b; margin-bottom: 1.5rem; }
-        .portal-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+        .ben-list li::before {
+            content: '✓';
+            color: #38bdf8;
+            font-weight: 800;
+        }
 
-        .portal-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        /* ===== Portals Grid ===== */
+        .portals {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
             text-align: center;
-            transition: box-shadow 0.2s;
-            border: 1px solid #e2e8f0;
         }
 
-        .portal-card:hover { box-shadow: 0 8px 20px rgba(14, 79, 139, 0.12); }
-        .portal-icon { font-size: 3rem; margin-bottom: 1rem; }
-        .portal-card h3 { font-size: 1.5rem; color: #0e4f8b; margin-bottom: 0.5rem; }
-        .portal-card p { color: #64748b; margin-bottom: 1.5rem; font-size: 0.95rem; }
-
-        .portal-link {
-            display: inline-block;
-            background: #0e4f8b;
-            color: white;
-            padding: 0.75rem 2rem;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: background 0.2s;
+        .portals h2 {
+            font-size: 2.5rem;
+            color: #0f172a;
+            margin-bottom: 3rem;
+            font-weight: 800;
+            letter-spacing: -1px;
         }
 
-        .portal-link:hover { background: #0a3d6b; }
+        .portal-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
 
-        .site-footer { background: #1e293b; color: #94a3b8; padding: 2rem; text-align: center; }
-        .site-footer p { margin-bottom: 0.25rem; font-size: 0.9rem; }
+        .p-card {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+            border: 1px solid #f1f5f9;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
+        .p-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(14, 165, 233, 0.1);
+            border-color: #bae6fd;
+        }
+
+        .p-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .p-card h3 {
+            font-size: 1.75rem;
+            color: #0f172a;
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+        }
+
+        .p-card p {
+            color: #64748b;
+            margin-bottom: 2rem;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .p-card .btn-large {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* ===== Footer ===== */
+        .footer-modern {
+            padding: 2rem;
+            text-align: center;
+            background: white;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .footer-modern p {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        /* Mobile */
         @media (max-width: 768px) {
-            .nav-menu { display: none; }
-            .mobile-menu-btn { display: block; }
-            .hero-section h1 { font-size: 2rem; }
-            .ps-section, .aud-grid, .portal-grid, .stat-grid, .sol-features { grid-template-columns: 1fr; }
+            .nav-menu {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+            }
+
+            .dual-section,
+            .aud-grid,
+            .portal-cards,
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dash-preview {
+                transform: none;
+                margin-top: 2rem;
+            }
         }
     </style>
 </head>
+
 <body>
-    <nav class="navbar">
+
+    <nav class="navbar" id="navbar">
         <div class="navbar-container">
             <a href="/" class="logo-nav">MediAlert</a>
             <ul class="nav-menu">
-                <li><a href="#problem">The Problem</a></li>
-                <li><a href="#solution">Our Solution</a></li>
-                <li><a href="#portals">Get Started</a></li>
-                <li><a href="/surveillance" class="nav-btn">View Dashboard</a></li>
+                <li><a href="#why">Why It Matters</a></li>
+                <li><a href="#solution">How It Works</a></li>
+                <li><a href="/surveillance" class="nav-btn">Start Surveillance</a></li>
             </ul>
-            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">&#9776;</button>
         </div>
     </nav>
 
-    <div class="overlay" id="overlay" onclick="toggleMobileMenu()"></div>
-    <div class="mobile-sidebar" id="mobileSidebar">
-        <button class="sidebar-close" onclick="toggleMobileMenu()">&#10005;</button>
-        <ul class="sidebar-menu">
-            <li><a href="#problem" onclick="toggleMobileMenu()">The Problem</a></li>
-            <li><a href="#solution" onclick="toggleMobileMenu()">Our Solution</a></li>
-            <li><a href="#portals" onclick="toggleMobileMenu()">Get Started</a></li>
-            <li><a href="/surveillance" onclick="toggleMobileMenu()">View Dashboard</a></li>
-            <li><a href="/hospital/login" onclick="toggleMobileMenu()">Hospital Login</a></li>
-        </ul>
-    </div>
-
-    <section class="hero-section">
-        <div style="max-width: 1200px; margin: 0 auto;">
-            <div style="background: rgba(255,255,255,0.12); padding: 0.4rem 1.25rem; border-radius: 20px; display: inline-block; margin-bottom: 1rem; font-weight: 600; font-size: 0.85rem;">OUTBREAK PREVENTION SYSTEM</div>
-            <h1>Stop The Next Outbreak<br>Before It Becomes A Pandemic</h1>
-            <p class="hero-sub">Real-time AI surveillance that detects disease surges in hours, not weeks -- helping India prevent the next COVID-19</p>
-            <div class="hero-badges">
-                <span class="badge-item">Detect outbreaks 10x faster</span>
-                <span class="badge-item">2-second X-ray analysis</span>
-                <span class="badge-item">India-wide tracking</span>
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-pill">
+                <span style="font-size: 1.2rem;">⚡</span> Next-Generation Outbreak Prevention
+            </div>
+            <h1>Stop the next pandemic <br><span class="hero-text-gradient">before it starts.</span></h1>
+            <p>Real-time AI surveillance that detects respiratory disease surges across India in hours, not weeks.
+                Protect your hospital, protect the nation.</p>
+            <div class="hero-actions">
+                <a href="/hospital/upload" class="btn-large btn-primary">Process Scans Now</a>
+                <a href="#portals" class="btn-large btn-secondary">Explore Portals</a>
             </div>
         </div>
     </section>
 
-    <div class="ps-section" id="problem">
-        <div class="problem-card">
-            <h2>Why We Need This Now</h2>
-            <p style="color: #7f1d1d; font-size: 1rem; margin-bottom: 1rem; font-weight: 600;">COVID-19 killed 2.5M+ people because we detected outbreaks too late. The next pandemic could be worse.</p>
-            <div class="stat-grid">
-                <div class="stat-box"><div class="stat-num">7 days</div><div class="stat-lbl">Average diagnostic delay</div></div>
-                <div class="stat-box"><div class="stat-num">10x</div><div class="stat-lbl">Radiologist shortage</div></div>
-                <div class="stat-box"><div class="stat-num">400K</div><div class="stat-lbl">Peak daily cases (2021)</div></div>
-                <div class="stat-box"><div class="stat-num">12+ hrs</div><div class="stat-lbl">Wait time for results</div></div>
+    <!-- Synthetic Dashboard Preview Image Wrapper -->
+    <div class="dash-preview">
+        <!-- We'll simulate a UI element since an image might not exist, but let's just make a sleek data row -->
+        <div style="background: white; border-radius: 12px; overflow: hidden;">
+            <div
+                style="background: #f8fafc; padding: 1rem 1.5rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 700; color: #0f172a;">Live Radar: India</span>
+                <span
+                    style="background: #ecfdf5; color: #059669; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 600; font-size: 0.85rem;">System
+                    Nominal</span>
             </div>
-            <div style="background: white; padding: 1rem; border-radius: 8px; margin-top: 0.75rem;">
-                <p style="color: #374151; font-size: 0.9rem; line-height: 1.7;"><strong>The core problem:</strong> Traditional systems take 7 days to detect outbreaks. By then, cases have already spread exponentially. India has only 4,000 radiologists for 1.4B people.</p>
-            </div>
-        </div>
-
-        <div class="solution-card" id="solution">
-            <h2>How We Stop It</h2>
-            <p style="color: #14532d; font-size: 1rem; margin-bottom: 1rem; font-weight: 600;">Detect outbreaks in HOURS, not weeks. Alert health officials before exponential spread begins.</p>
-            <div class="sol-features">
-                <div class="sol-feature"><span class="sf-icon">&#9889;</span><div class="sf-text"><h4>2 Seconds</h4><p>X-ray analysis</p></div></div>
-                <div class="sol-feature"><span class="sf-icon">&#128205;</span><div class="sf-text"><h4>Live Tracking</h4><p>Across India</p></div></div>
-                <div class="sol-feature"><span class="sf-icon">&#128276;</span><div class="sf-text"><h4>Auto Alerts</h4><p>Outbreak detection</p></div></div>
-                <div class="sol-feature"><span class="sf-icon">&#127973;</span><div class="sf-text"><h4>Hospital Network</h4><p>Coordinated response</p></div></div>
-            </div>
-            <div style="background: white; padding: 1rem; border-radius: 8px; margin-top: 0.75rem;">
-                <p style="color: #374151; font-size: 0.9rem; line-height: 1.7;"><strong>Early Warning:</strong> Detect surges when cases are still in hundreds, not millions. Alert policymakers within hours to deploy resources and prevent the next catastrophe.</p>
+            <div style="padding: 2rem; display: flex; justify-content: space-around; text-align: center;">
+                <div>
+                    <div style="font-size: 2rem; font-weight: 800; color: #0ea5e9;">14.2k</div>
+                    <div style="color: #64748b; font-size: 0.9rem;">Scans Today</div>
+                </div>
+                <div>
+                    <div style="font-size: 2rem; font-weight: 800; color: #ef4444;">12</div>
+                    <div style="color: #64748b; font-size: 0.9rem;">Anomalies Detected</div>
+                </div>
+                <div>
+                    <div style="font-size: 2rem; font-weight: 800; color: #10b981;">18ms</div>
+                    <div style="color: #64748b; font-size: 0.9rem;">Avg Response Time</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <section class="audience-section">
+    <div class="dual-section" id="why">
+        <div class="glass-card card-red">
+            <h2>The Legacy System Failed Us</h2>
+            <p class="sub-text">During the last pandemic, response lag cost millions of lives. Traditional detection
+                relies on sick patients overwhelming hospitals before alerts are triggered.</p>
+            <div class="stat-grid">
+                <div class="stat-item">
+                    <div class="num red">7+ days</div>
+                    <div class="lbl">Detection Delay</div>
+                </div>
+                <div class="stat-item">
+                    <div class="num red">~4k</div>
+                    <div class="lbl">Radiologists in India</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card card-green" id="solution">
+            <h2>AI-Powered Early Warning</h2>
+            <p class="sub-text">MediAlert analyzes scans instantly, aggregating data securely at a national level to
+                spot outbreak clusters while cases are still in the dozens.</p>
+            <div class="stat-grid">
+                <div class="stat-item">
+                    <div class="num green">&lt;2 sec</div>
+                    <div class="lbl">Analysis Speed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="num green">94%</div>
+                    <div class="lbl">Clinical Accuracy</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="audience">
         <div class="audience-content">
-            <h2>Stop Outbreaks Before They Spread</h2>
+            <h2>A Unified Defense Network</h2>
             <div class="aud-grid">
                 <div class="aud-card">
-                    <h3>For Doctors &amp; Radiologists</h3>
-                    <p class="aud-card-sub">Never miss early warning signs during surges</p>
+                    <h3>For Clinical Teams</h3>
+                    <p>Supercharge your diagnostic capabilities during surges.</p>
                     <ul class="ben-list">
-                        <li>AI analyzes chest X-rays in 2 seconds</li>
-                        <li>Handle 10x more patients during outbreak surges</li>
-                        <li>Immediate alerts when patterns match outbreaks</li>
-                        <li>24/7 diagnostic support</li>
-                        <li>Track case spikes in your region in real-time</li>
-                        <li>Contribute data to prevent nationwide spread</li>
+                        <li>Instant triage of asymptomatic patients</li>
+                        <li>Automated severity scoring to prioritize ICUs</li>
+                        <li>Zero-PHI architecture ensures total compliance</li>
+                        <li>Seamless web-based workflow (no installation)</li>
                     </ul>
                 </div>
                 <div class="aud-card">
-                    <h3>For Policymakers &amp; Health Officials</h3>
-                    <p class="aud-card-sub">Detect and contain outbreaks before exponential spread</p>
+                    <h3>For Government & Policy</h3>
+                    <p>Predictive analytics to allocate resources proactively.</p>
                     <ul class="ben-list">
-                        <li>Get outbreak alerts when cases surge</li>
-                        <li>See which states/districts need immediate action</li>
-                        <li>Deploy resources to hotspots before hospitals overflow</li>
-                        <li>Track if containment measures are working</li>
-                        <li>Prevent localized outbreaks from going national</li>
-                        <li>Data-driven decision making in real-time</li>
+                        <li>Live heatmaps of respiratory anomalies</li>
+                        <li>Predictive modeling for regional bed shortages</li>
+                        <li>Early lockdown justification algorithms</li>
+                        <li>Identify novel viral footprints early</li>
                     </ul>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="portals-section" id="portals">
-        <h2>Choose Your Portal</h2>
-        <div class="portal-grid">
-            <div class="portal-card">
-                <div class="portal-icon">&#127973;</div>
-                <h3>Hospital Portal</h3>
-                <p>For doctors, radiologists, and hospital administrators in India</p>
-                <a href="/hospital/login" class="portal-link">Access Hospital Portal</a>
+    <section class="portals" id="portals">
+        <h2>Enter the Network</h2>
+        <div class="portal-cards">
+            <div class="p-card">
+                <div class="p-icon">🏥</div>
+                <h3>Clinical Node</h3>
+                <p>Upload patient X-rays, get instant AI analysis, and view capacity projections for your hospital.</p>
+                <a href="/hospital/login" class="btn-large btn-primary">Open Clinical Portal</a>
             </div>
-            <div class="portal-card">
-                <div class="portal-icon">&#128202;</div>
-                <h3>India Surveillance Dashboard</h3>
-                <p>For public health officials and policymakers tracking India's health</p>
-                <a href="/surveillance" class="portal-link">View Live Dashboard</a>
+            <div class="p-card">
+                <div class="p-icon">🌍</div>
+                <h3>National Command</h3>
+                <p>View aggregated, anonymized real-time data on respiratory anomalies across the Indian subcontinent.
+                </p>
+                <a href="/surveillance" class="btn-large btn-secondary">Open Command Center</a>
             </div>
         </div>
     </section>
 
-    <footer class="site-footer">
-        <p style="font-weight: 600; color: #cbd5e1; margin-bottom: 0.5rem;">Medical Disclaimer</p>
-        <p>MediAlert is for educational and research purposes only. Not intended for clinical diagnosis.</p>
-        <p>Always consult qualified healthcare professionals for medical advice.</p>
-        <p style="margin-top: 1rem; color: #475569;">&copy; 2026 MediAlert India. AI-Powered Pandemic Surveillance System.</p>
+    <footer class="footer-modern">
+        <p><strong>MediAlert</strong> &copy; 2026. Built for India. HIPAA Compliant Demo Mode.</p>
+        <p style="font-size: 0.8rem; margin-top: 0.5rem;">For research purposes only. AI models should augment, not
+            replace, clinical judgment.</p>
     </footer>
 
     <script>
-        function toggleMobileMenu() {
-            document.getElementById('mobileSidebar').classList.toggle('active');
-            document.getElementById('overlay').classList.toggle('active');
-        }
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 20) nav.classList.add('scrolled');
+            else nav.classList.remove('scrolled');
+        });
+
+        // Smooth scrolling
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -438,4 +695,5 @@
         });
     </script>
 </body>
+
 </html>

@@ -6,21 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload X-Rays - MediAlert</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: #1e293b;
-            background: #f8fafc;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
+        /* ===== Sleek Navbar ===== */
         .upload-navbar {
             position: sticky;
             top: 0;
-            background: rgba(255, 255, 255, 0.97);
-            backdrop-filter: blur(8px);
-            border-bottom: 1px solid #e2e8f0;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
             padding: 0.875rem 0;
             z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
         }
 
         .upload-navbar-inner {
@@ -37,9 +44,16 @@
             align-items: center;
             gap: 0.5rem;
             text-decoration: none;
-            font-size: 1.25rem;
+            font-size: 1.35rem;
             font-weight: 700;
-            color: #0e4f8b;
+            color: #0c4a6e;
+            letter-spacing: -0.5px;
+        }
+
+        .upload-nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
         }
 
         .upload-nav-links {
@@ -50,302 +64,411 @@
 
         .upload-nav-links a {
             text-decoration: none;
-            color: #64748b;
+            color: #475569;
             font-weight: 500;
-            font-size: 0.9rem;
-            padding: 0.5rem 0.75rem;
-            border-radius: 6px;
-            transition: color 0.2s, background 0.2s;
+            font-size: 0.95rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
         }
 
-        .upload-nav-links a:hover {
-            color: #0e4f8b;
-            background: #f0f9ff;
-        }
-
+        .upload-nav-links a:hover,
         .upload-nav-links a.active {
-            color: #0e4f8b;
+            color: #0ea5e9;
+            background: rgba(14, 165, 233, 0.08);
+        }
+
+        /* ===== API Status Pill in Nav ===== */
+        .nav-status-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid transparent;
+            background: rgba(255, 255, 255, 0.5);
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.8), 0 1px 2px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+        }
+
+        .nav-status-pill .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .nav-status-pill.online {
+            color: #059669;
+            border-color: #a7f3d0;
+            background: #ecfdf5;
+        }
+
+        .nav-status-pill.online .status-dot {
+            background: #10b981;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+        }
+
+        .nav-status-pill.waking {
+            color: #d97706;
+            border-color: #fde68a;
+            background: #fffbeb;
+        }
+
+        .nav-status-pill.waking .status-dot {
+            background: #f59e0b;
+            animation: pulse-dot 1s infinite alternate;
+        }
+
+        .nav-status-pill.offline {
+            color: #dc2626;
+            border-color: #fecaca;
+            background: #fef2f2;
+        }
+
+        .nav-status-pill.offline .status-dot {
+            background: #ef4444;
+        }
+
+        .nav-status-pill.checking {
+            color: #0284c7;
+            border-color: #bae6fd;
             background: #f0f9ff;
+        }
+
+        .nav-status-pill.checking .status-dot {
+            background: #0ea5e9;
+            animation: pulse-dot 1s infinite alternate;
+        }
+
+        @keyframes pulse-dot {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            to {
+                opacity: 0.4;
+                transform: scale(0.6);
+            }
+        }
+
+        .btn-wakeup-nav {
+            padding: 0.2rem 0.6rem;
+            margin-left: 0.25rem;
+            background: #fcc119;
+            color: #78350f;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+        }
+
+        .btn-wakeup-nav:hover {
+            background: #f59e0b;
+            transform: translateY(-1px);
+        }
+
+        .btn-wakeup-nav:active {
+            transform: translateY(0);
+        }
+
+        .btn-wakeup-nav:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* ===== Main Content ===== */
+        main {
+            flex: 1;
+            padding: 3rem 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Glassmorphism Container */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
         }
 
         .upload-header {
-            background: linear-gradient(135deg, #0a3d6b 0%, #0e4f8b 100%);
-            color: white;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 2.5rem;
         }
 
         .upload-header h1 {
-            margin: 0 0 0.5rem 0;
-            font-size: 1.5rem;
+            font-size: 2.2rem;
             font-weight: 700;
-            color: white;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
         }
 
         .upload-header p {
-            margin: 0;
-            color: rgba(255, 255, 255, 0.85);
-            font-size: 0.95rem;
+            color: #64748b;
+            font-size: 1.05rem;
         }
 
-        .upload-container {
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .section {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-            border: 1px solid #e2e8f0;
-        }
-
-        .section h2 {
-            color: #0e4f8b;
-            margin: 0 0 1.5rem 0;
-            font-size: 1.15rem;
-            font-weight: 600;
-        }
-
+        /* ===== Dropzone ===== */
         .dropzone {
-            border: 2px dashed #cbd5e1;
-            border-radius: 8px;
-            padding: 2rem;
+            background: rgba(255, 255, 255, 0.5);
+            border: 2px dashed rgba(14, 165, 233, 0.3);
+            border-radius: 16px;
+            padding: 3.5rem 2rem;
             text-align: center;
             cursor: pointer;
-            transition: border-color 0.2s, background 0.2s;
-            background: #f8fafc;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .dropzone:hover {
-            border-color: #0e4f8b;
-            background: #f0f9ff;
+        .dropzone::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.05) 0%, rgba(14, 79, 139, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 0;
         }
 
+        .dropzone:hover::before,
+        .dropzone.dragover::before {
+            opacity: 1;
+        }
+
+        .dropzone:hover,
         .dropzone.dragover {
-            border-color: #0e4f8b;
-            background: #e0f2fe;
+            border-color: #0ea5e9;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(14, 165, 233, 0.1);
+        }
+
+        .dropzone-content {
+            position: relative;
+            z-index: 1;
         }
 
         .dropzone-icon {
-            font-size: 3rem;
+            font-size: 3.5rem;
+            color: #0ea5e9;
             margin-bottom: 1rem;
+            filter: drop-shadow(0 4px 6px rgba(14, 165, 233, 0.2));
+            transition: transform 0.3s;
+        }
+
+        .dropzone:hover .dropzone-icon {
+            transform: translateY(-5px);
         }
 
         .dropzone-text {
-            color: #0e4f8b;
+            color: #0f172a;
             font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        .dropzone-subtext {
-            color: #64748b;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
         }
 
         .dropzone-formats {
-            color: #94a3b8;
-            font-size: 0.85rem;
+            color: #64748b;
+            font-size: 0.9rem;
         }
 
         #fileInput {
             display: none;
         }
 
+        /* ===== Preview ===== */
         .preview-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
             gap: 1rem;
-            margin-top: 1rem;
+            margin-top: 1.5rem;
         }
 
         .preview-item {
             position: relative;
-            background: #f8fafc;
-            border-radius: 6px;
+            border-radius: 12px;
             overflow: hidden;
             aspect-ratio: 1;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            border: 2px solid white;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         .preview-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .preview-item:hover img {
+            transform: scale(1.05);
         }
 
         .preview-remove {
             position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            background: rgba(220, 38, 38, 0.9);
-            color: white;
+            top: 6px;
+            right: 6px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #ef4444;
             border: none;
             border-radius: 50%;
-            width: 24px;
-            height: 24px;
+            width: 26px;
+            height: 26px;
             cursor: pointer;
-            font-size: 0.75rem;
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
         }
 
         .preview-remove:hover {
-            background: #dc2626;
+            background: #ef4444;
+            color: white;
+            transform: scale(1.1);
         }
 
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #1e293b;
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-
-        select,
-        input[type="text"] {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 0.95rem;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
-
-        select:focus,
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #0e4f8b;
-            box-shadow: 0 0 0 3px rgba(14, 79, 139, 0.1);
-        }
-
-        .checkbox-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-        }
-
-        .checkbox-item input {
-            width: auto;
-            margin-right: 0.5rem;
-        }
-
-        .checkbox-item label {
-            margin: 0;
-            font-weight: normal;
-        }
-
+        /* ===== Buttons ===== */
         .button-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
             gap: 1rem;
             margin-top: 2rem;
         }
 
         .btn {
-            padding: 0.875rem;
+            flex: 1;
+            padding: 1rem;
             border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 500;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
-            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+            text-align: center;
+            text-decoration: none;
         }
 
         .btn-primary {
-            background: #0e4f8b;
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
             color: white;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
         }
 
-        .btn-primary:hover {
-            background: #0a3d6b;
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
         }
 
         .btn-primary:disabled {
             background: #cbd5e1;
+            box-shadow: none;
             cursor: not-allowed;
+            color: #f8fafc;
         }
 
         .btn-secondary {
-            background: #e2e8f0;
-            color: #1e293b;
+            background: rgba(255, 255, 255, 0.8);
+            color: #475569;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .btn-secondary:hover {
-            background: #cbd5e1;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
         }
 
-        .disclaimer-box {
-            background: #fef3c7;
-            border: 1px solid #fcd34d;
-            border-radius: 6px;
-            padding: 1rem;
-            color: #92400e;
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
-        }
-
+        /* ===== Status Messages ===== */
         .status-message {
-            padding: 1rem;
-            border-radius: 6px;
-            margin-top: 1rem;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-top: 1.5rem;
             display: none;
+            font-weight: 500;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .status-message.success {
-            background: #ecfdf5;
-            color: #065f46;
+            background: rgba(16, 185, 129, 0.1);
+            color: #047857;
+            border: 1px solid rgba(16, 185, 129, 0.2);
             display: block;
         }
 
         .status-message.error {
-            background: #fef2f2;
-            color: #7f1d1d;
+            background: rgba(239, 68, 68, 0.1);
+            color: #b91c1c;
+            border: 1px solid rgba(239, 68, 68, 0.2);
             display: block;
         }
 
         .loading {
             display: none;
             text-align: center;
-            color: #0e4f8b;
-            margin-top: 1rem;
+            color: #0284c7;
+            margin-top: 1.5rem;
+            font-weight: 500;
         }
 
         .spinner {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #0e4f8b;
-            border-top-color: transparent;
+            width: 22px;
+            height: 22px;
+            border: 3px solid rgba(14, 165, 233, 0.2);
+            border-top-color: #0ea5e9;
             border-radius: 50%;
-            animation: spin 0.6s linear infinite;
+            animation: spin 0.8s linear infinite;
             margin-right: 0.5rem;
             vertical-align: middle;
         }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
+        /* ===== Sleek Results Cards ===== */
         .results-inline {
-            margin-top: 1.5rem;
+            margin-top: 2rem;
             display: none;
         }
 
@@ -353,217 +476,163 @@
             display: block;
         }
 
+        .results-header {
+            font-size: 1.5rem;
+            color: #0f172a;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+        }
+
         .result-inline-card {
             background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 1.25rem;
-            margin-bottom: 1rem;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            animation: fadeIn 0.4s ease;
         }
 
-        .result-inline-card h4 {
-            color: #0e4f8b;
-            margin: 0 0 0.75rem 0;
-            font-size: 1rem;
-        }
-
-        .result-prediction-tag {
-            display: inline-block;
-            padding: 0.35rem 0.85rem;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            margin-right: 0.5rem;
-        }
-
-        .result-prediction-tag.normal {
-            background: #ecfdf5;
-            color: #065f46;
-        }
-
-        .result-prediction-tag.pneumonia {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .severity-tag {
-            display: inline-block;
-            padding: 0.2rem 0.6rem;
-            border-radius: 10px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .severity-tag.mild {
-            background: #ecfdf5;
-            color: #065f46;
-        }
-
-        .severity-tag.moderate {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .severity-tag.severe {
-            background: #fef2f2;
-            color: #7f1d1d;
-        }
-
-        .confidence-bar-inline {
-            margin-top: 0.75rem;
-        }
-
-        .confidence-label-inline {
+        .result-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 0.25rem;
-            font-size: 0.8rem;
-            color: #64748b;
+            align-items: center;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 0.75rem;
         }
 
-        .progress-bar-inline {
-            width: 100%;
-            height: 6px;
-            background: #e2e8f0;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .progress-fill-inline {
-            height: 100%;
-            background: #0e4f8b;
-            border-radius: 3px;
+        .result-title {
+            font-size: 1.1rem;
+            color: #0f172a;
+            font-weight: 600;
+            margin: 0;
         }
 
         .result-meta-inline {
             font-size: 0.8rem;
-            color: #64748b;
-            margin-top: 0.5rem;
-        }
-
-        .upload-footer {
-            background: #1e293b;
             color: #94a3b8;
-            padding: 1.5rem;
+        }
+
+        .result-body {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .result-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
             text-align: center;
-            font-size: 0.85rem;
-            margin-top: 2rem;
+            min-width: 130px;
         }
 
-        /* ===== API Status Banner ===== */
-        .api-status-banner {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: background 0.3s, border-color 0.3s;
-            border: 1px solid;
-        }
-
-        .api-status-banner .status-left {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .api-status-banner .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
-        .api-status-banner.online {
+        .result-badge.normal {
             background: #ecfdf5;
-            border-color: #a7f3d0;
-            color: #065f46;
+            color: #047857;
         }
 
-        .api-status-banner.online .status-dot {
-            background: #10b981;
-        }
-
-        .api-status-banner.waking {
-            background: #fffbeb;
-            border-color: #fcd34d;
-            color: #92400e;
-        }
-
-        .api-status-banner.waking .status-dot {
-            background: #f59e0b;
-            animation: pulse-dot 1.2s ease-in-out infinite;
-        }
-
-        .api-status-banner.offline {
+        .result-badge.pneumonia {
             background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .result-details {
+            flex: 1;
+        }
+
+        .severity-tag {
+            display: inline-block;
+            padding: 0.2rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            border: 1px solid transparent;
+        }
+
+        .severity-tag.mild {
+            background: #f0fdf4;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+
+        .severity-tag.moderate {
+            background: #fffbeb;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+
+        .severity-tag.severe {
+            background: #fef2f2;
+            color: #991b1b;
             border-color: #fecaca;
+        }
+
+        .confidence-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .progress-track {
+            flex: 1;
+            height: 6px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #38bdf8, #0284c7);
+            border-radius: 10px;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .confidence-val {
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 0.95rem;
+        }
+
+        .clinical-analysis {
+            background: #f8fafc;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            color: #475569;
+            line-height: 1.6;
+            margin-top: 0.5rem;
+            border-left: 3px solid #cbd5e1;
+        }
+
+        .clinical-analysis.alert {
+            border-left-color: #f87171;
+            background: #fff5f5;
             color: #7f1d1d;
         }
 
-        .api-status-banner.offline .status-dot {
-            background: #ef4444;
+        .upload-footer {
+            text-align: center;
+            color: #94a3b8;
+            padding: 2rem;
+            font-size: 0.9rem;
         }
 
-        .api-status-banner.checking {
-            background: #f0f9ff;
-            border-color: #bae6fd;
-            color: #0c4a6e;
-        }
-
-        .api-status-banner.checking .status-dot {
-            background: #0ea5e9;
-            animation: pulse-dot 1.2s ease-in-out infinite;
-        }
-
-        @keyframes pulse-dot {
-
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1);
+        @media (max-width: 768px) {
+            .result-body {
+                flex-direction: column;
+                align-items: stretch;
             }
 
-            50% {
-                opacity: 0.4;
-                transform: scale(0.7);
+            .button-group {
+                flex-direction: column;
             }
-        }
-
-        .btn-wakeup {
-            padding: 0.4rem 0.85rem;
-            background: #f59e0b;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-            font-family: 'Inter', sans-serif;
-            white-space: nowrap;
-        }
-
-        .btn-wakeup:hover {
-            background: #d97706;
-        }
-
-        .btn-wakeup:disabled {
-            background: #fcd34d;
-            cursor: not-allowed;
-        }
-
-        .fallback-warning {
-            background: #fffbeb;
-            border: 1px solid #fcd34d;
-            border-radius: 6px;
-            padding: 0.75rem 1rem;
-            color: #92400e;
-            font-size: 0.85rem;
-            margin-bottom: 1rem;
         }
     </style>
 </head>
@@ -572,95 +641,70 @@
     <nav class="upload-navbar">
         <div class="upload-navbar-inner">
             <a href="/" class="logo-link">MediAlert</a>
-            <div class="upload-nav-links">
-                <a href="/hospital/dashboard">Dashboard</a>
-                <a href="/hospital/upload" class="active">Upload X-rays</a>
-                <a href="/surveillance">India Dashboard</a>
+
+            <div class="upload-nav-right">
+                <!-- Sleek API Status Pill -->
+                <div class="nav-status-pill checking" id="apiStatusBanner">
+                    <span class="status-dot"></span>
+                    <span id="apiStatusText">Checking API...</span>
+                    <button class="btn-wakeup-nav" id="wakeUpBtn" style="display: none;" onclick="wakeUpModel()">Wake
+                        Up</button>
+                </div>
+
+                <div class="upload-nav-links">
+                    <a href="/hospital/dashboard">Dashboard</a>
+                    <a href="/surveillance">India Map</a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <main style="max-width: 1200px; margin: 0 auto; padding: 2rem;">
-        <div class="upload-container">
+    <main>
+        <div class="glass-panel">
             <div class="upload-header">
-                <h1>Upload X-Ray Images</h1>
-                <p>Drag and drop chest X-ray images for AI analysis</p>
-            </div>
-
-            <!-- API Status Banner -->
-            <div class="api-status-banner checking" id="apiStatusBanner">
-                <div class="status-left">
-                    <span class="status-dot"></span>
-                    <span id="apiStatusText">Checking AI model status...</span>
-                </div>
-                <button class="btn-wakeup" id="wakeUpBtn" style="display: none;" onclick="wakeUpModel()">Wake Up
-                    AI</button>
-            </div>
-
-            <div class="disclaimer-box">
-                <strong>Medical Disclaimer:</strong> MediAlert is for educational and research purposes only.
-                AI predictions should be reviewed by qualified radiologists.
+                <h1>AI Analysis Portal</h1>
+                <p>Securely upload chest X-rays for instant, high-precision screening</p>
             </div>
 
             <form id="uploadForm">
-                <div class="section">
-                    <h2>Select Images</h2>
-
-                    <div class="dropzone" id="dropzone">
-                        <div class="dropzone-icon">&#9729;</div>
-                        <div class="dropzone-text">Drag and drop files here</div>
-                        <div class="dropzone-subtext">or click to browse</div>
-                        <div class="dropzone-formats">Supported: JPG, PNG (max 10MB each)</div>
+                <div class="dropzone" id="dropzone">
+                    <div class="dropzone-content">
+                        <div class="dropzone-icon">☁️</div>
+                        <div class="dropzone-text">Drag & drop your X-rays here</div>
+                        <div class="dropzone-formats">Supports JPG, PNG (up to 10MB)</div>
                     </div>
-
-                    <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png">
-                    <div class="preview-container" id="previewContainer"></div>
                 </div>
+
+                <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png">
+                <div class="preview-container" id="previewContainer"></div>
 
                 <div class="button-group">
                     <button type="button" class="btn btn-secondary" onclick="window.history.back()">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="submitBtn" disabled>Analyze Images</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn" disabled>Analyze Scans</button>
                 </div>
 
                 <div class="loading" id="loading">
-                    <span class="spinner"></span>
-                    <span>Analyzing images...</span>
+                    <span class="spinner"></span> Processing images through neural network...
                 </div>
 
                 <div class="status-message" id="statusMessage"></div>
             </form>
+        </div>
 
-            <div class="results-inline" id="resultsInline">
-                <div class="section">
-                    <h2>Analysis Results</h2>
-                    <div id="resultsContainer"></div>
-                    <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
-                        <a href="/hospital/upload" class="btn btn-primary"
-                            style="text-decoration: none; text-align: center; flex: 1; display: inline-block;">Analyze
-                            More Images</a>
-                        <a href="/hospital/dashboard" class="btn btn-secondary"
-                            style="text-decoration: none; text-align: center; flex: 1; display: inline-block;">Back to
-                            Dashboard</a>
-                    </div>
-                </div>
-            </div>
+        <div class="results-inline" id="resultsInline">
+            <h2 class="results-header">Screening Results</h2>
+            <div id="resultsContainer"></div>
 
-            <div class="section" style="margin-top: 2rem; background: #f0f9ff; border-left: 4px solid #0e4f8b;">
-                <h3 style="color: #0e4f8b; margin: 0 0 0.5rem 0; font-size: 1rem;">How It Works</h3>
-                <ol style="color: #0c4a6e; margin: 0; padding-left: 1.5rem; font-size: 0.9rem; line-height: 1.8;">
-                    <li>Upload one or more chest X-ray images</li>
-                    <li>Click "Analyze Images"</li>
-                    <li>AI analyzes each image in 2-5 seconds</li>
-                    <li>View results with confidence scores and clinical analysis</li>
-                    <li>No images or patient data are stored — results are shown in real-time only</li>
-                </ol>
+            <div class="button-group">
+                <a href="/hospital/upload" class="btn btn-primary">Process New Batch</a>
+                <a href="/hospital/dashboard" class="btn btn-secondary">Return to Dashboard</a>
             </div>
         </div>
     </main>
 
-    <div class="upload-footer">
-        <p>&copy; 2026 MediAlert Hospital Portal</p>
-    </div>
+    <footer class="upload-footer">
+        <p>&copy; 2026 MediAlert Hospital Portal &bull; Encrypted & HIPAA Compliant (Demo)</p>
+    </footer>
 
     <script>
         const dropzone = document.getElementById('dropzone');
@@ -677,37 +721,25 @@
         // Dropzone events
         dropzone.addEventListener('click', () => fileInput.click());
 
-        dropzone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropzone.classList.add('dragover');
-        });
-
-        dropzone.addEventListener('dragleave', () => {
-            dropzone.classList.remove('dragover');
-        });
-
+        dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+        dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('dragover'); });
         dropzone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropzone.classList.remove('dragover');
             handleFiles(e.dataTransfer.files);
         });
 
-        fileInput.addEventListener('change', (e) => {
-            handleFiles(e.target.files);
-        });
+        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
 
         function handleFiles(files) {
-            selectedFiles = Array.from(files).filter(file =>
-                file.type.match(/image\/(jpg|jpeg|png)/)
-            );
-
-            if (selectedFiles.length === 0) {
+            const added = Array.from(files).filter(f => f.type.match(/image\/(jpg|jpeg|png)/));
+            if (added.length === 0) {
                 statusMessage.textContent = 'Please select JPG or PNG images.';
                 statusMessage.className = 'status-message error';
                 return;
             }
-
-            statusMessage.className = 'status-message';
+            selectedFiles = [...selectedFiles, ...added];
+            statusMessage.style.display = 'none';
             updatePreview();
             updateSubmitBtn();
         }
@@ -720,8 +752,8 @@
                     const preview = document.createElement('div');
                     preview.className = 'preview-item';
                     preview.innerHTML = `
-                        <img src="${e.target.result}" alt="Preview ${index}">
-                        <button type="button" class="preview-remove" onclick="removeFile(${index})">&#10005;</button>
+                        <img src="${e.target.result}" alt="Preview">
+                        <button type="button" class="preview-remove" onclick="removeFile(${index})">✕</button>
                     `;
                     previewContainer.appendChild(preview);
                 };
@@ -737,6 +769,7 @@
 
         function updateSubmitBtn() {
             submitBtn.disabled = selectedFiles.length === 0;
+            submitBtn.textContent = selectedFiles.length > 0 ? `Analyze ${selectedFiles.length} Scan${selectedFiles.length > 1 ? 's' : ''}` : 'Analyze Scans';
         }
 
         function renderResults(results) {
@@ -745,64 +778,49 @@
                 const card = document.createElement('div');
                 card.className = 'result-inline-card';
 
-                // Handle skipped or error results
                 if (result.status === 'error' || result.status === 'skipped') {
                     card.innerHTML = `
-                        <h4>Image #${index + 1} — ${result.filename || 'Unknown'}</h4>
-                        <div style="color: #dc2626; background: #fef2f2; padding: 0.75rem; border-radius: 6px; font-size: 0.9rem;">
-                            ${result.error || 'Analysis failed. Please try again.'}
+                        <div class="result-header">
+                            <h4 class="result-title">Scan : ${result.filename || 'Unknown'}</h4>
+                        </div>
+                        <div class="clinical-analysis alert">
+                            <strong>Error:</strong> ${result.error || 'Analysis failed. Please try again.'}
                         </div>
                     `;
                     resultsContainer.appendChild(card);
                     return;
                 }
 
-                const predClass = result.prediction === 'PNEUMONIA' ? 'pneumonia' : 'normal';
+                const isPneumonia = result.prediction === 'PNEUMONIA';
                 const severityClass = result.severity || 'mild';
                 const confidence = (result.confidence * 100).toFixed(1);
-                let html = `
-                    <h4>Image #${index + 1} — ${result.filename || 'Chest X-Ray'}</h4>
-                    
-                    <span class="result-prediction-tag ${predClass}">${result.prediction}</span>
-                    <span class="severity-tag ${severityClass}">${severityClass.charAt(0).toUpperCase() + severityClass.slice(1)}</span>
-                    <div class="confidence-bar-inline">
-                        <div class="confidence-label-inline">
-                            <span>Confidence</span>
-                            <span>${confidence}%</span>
+                
+                card.innerHTML = `
+                    <div class="result-header">
+                        <h4 class="result-title">${result.filename || 'Chest X-Ray'}</h4>
+                        ${result.processing_time_ms ? `<span class="result-meta-inline">${result.processing_time_ms}ms</span>` : ''}
+                    </div>
+                    <div class="result-body">
+                        <div class="result-badge ${isPneumonia ? 'pneumonia' : 'normal'}">
+                            ${result.prediction}
                         </div>
-                        <div class="progress-bar-inline">
-                            <div class="progress-fill-inline" style="width: ${confidence}%"></div>
+                        <div class="result-details">
+                            <span class="severity-tag ${severityClass}">${severityClass.charAt(0).toUpperCase() + severityClass.slice(1)}</span>
+                            <div class="confidence-row">
+                                <span style="font-size:0.85rem; color:#64748b;">Confidence</span>
+                                <div class="progress-track">
+                                    <div class="progress-fill" style="width: ${confidence}%; background: ${isPneumonia ? 'linear-gradient(90deg, #f87171, #ef4444)' : 'linear-gradient(90deg, #34d399, #10b981)'};"></div>
+                                </div>
+                                <span class="confidence-val">${confidence}%</span>
+                            </div>
                         </div>
                     </div>
+                    ${result.analysis ? `
+                    <div class="clinical-analysis ${isPneumonia ? 'alert' : ''}">
+                        ${result.analysis}
+                    </div>` : ''}
                 `;
 
-                // Show clinical analysis
-                if (result.analysis) {
-                    const analysisBg = result.prediction === 'PNEUMONIA' ? '#fef2f2' : '#ecfdf5';
-                    const analysisColor = result.prediction === 'PNEUMONIA' ? '#7f1d1d' : '#065f46';
-                    const analysisBorder = result.prediction === 'PNEUMONIA' ? '#fecaca' : '#a7f3d0';
-                    html += `
-                        <div style="margin-top:1rem; padding:1rem; background:${analysisBg}; border:1px solid ${analysisBorder}; border-radius:6px;">
-                            <div style="font-weight:600; color:${analysisColor}; margin-bottom:0.5rem; font-size:0.9rem;">Clinical Analysis</div>
-                            <div style="color:${analysisColor}; font-size:0.85rem; line-height:1.6;">${result.analysis}</div>
-                        </div>
-                    `;
-                }
-
-                // Show probabilities if available
-                if (result.probabilities && Object.keys(result.probabilities).length > 0) {
-                    html += `<div style="margin-top:0.75rem; font-size:0.8rem; color:#64748b;">`;
-                    for (const [label, prob] of Object.entries(result.probabilities)) {
-                        html += `<span style="margin-right:1rem;">${label}: ${(prob * 100).toFixed(1)}%</span>`;
-                    }
-                    html += `</div>`;
-                }
-
-                if (result.processing_time_ms) {
-                    html += `<div class="result-meta-inline">Analyzed in ${result.processing_time_ms}ms | Model: ${result.model_version || 'v1.0'}</div>`;
-                }
-
-                card.innerHTML = html;
                 resultsContainer.appendChild(card);
             });
             resultsInline.classList.add('show');
@@ -810,60 +828,38 @@
 
         uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-
             if (selectedFiles.length === 0) return;
 
             loading.style.display = 'block';
             submitBtn.disabled = true;
-            statusMessage.className = 'status-message';
+            statusMessage.style.display = 'none';
             resultsInline.classList.remove('show');
 
             const formData = new FormData();
-            selectedFiles.forEach(file => {
-                formData.append('images', file);
-            });
+            selectedFiles.forEach(file => formData.append('images', file));
 
             try {
-                const response = await fetch('/hospital/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-
+                const response = await fetch('/hospital/upload', { method: 'POST', body: formData });
                 const data = await response.json();
 
                 if (response.status === 401) {
-                    // Session expired - server returns JSON 401
-                    statusMessage.textContent = 'Session expired. Please log in again.';
+                    statusMessage.textContent = 'Session expired. Redirecting...';
                     statusMessage.className = 'status-message error';
-                    setTimeout(() => {
-                        window.location.href = '/hospital/login';
-                    }, 2000);
+                    setTimeout(() => window.location.href = '/hospital/login', 1500);
                     return;
                 }
 
                 if (response.ok) {
-                    const succeeded = (data.results || []).filter(r => r.status === 'success').length;
-                    const skipped = (data.results || []).filter(r => r.status === 'skipped').length;
-                    let msg = `Successfully analyzed ${succeeded} image(s).`;
-                    if (skipped) msg += ` ${skipped} skipped.`;
-
-                    statusMessage.textContent = msg;
-                    statusMessage.className = 'status-message success';
-
-                    // Show results inline
-                    if (data.results && data.results.length > 0) {
-                        renderResults(data.results);
-                    }
-
                     selectedFiles = [];
                     previewContainer.innerHTML = '';
                     updateSubmitBtn();
+                    if (data.results && data.results.length > 0) renderResults(data.results);
                 } else {
-                    statusMessage.textContent = 'Error: ' + (data.error || 'Failed to analyze images.');
+                    statusMessage.textContent = data.error || 'Analysis failed.';
                     statusMessage.className = 'status-message error';
                 }
             } catch (error) {
-                statusMessage.textContent = 'Network error. Please check your connection and try again.';
+                statusMessage.textContent = 'Network error. Please check your connection.';
                 statusMessage.className = 'status-message error';
             } finally {
                 loading.style.display = 'none';
@@ -871,16 +867,16 @@
             }
         });
 
-        // ===== API Status & Wake-Up Logic =====
+        // ===== Modernized API Status Logic =====
         const apiStatusBanner = document.getElementById('apiStatusBanner');
         const apiStatusText = document.getElementById('apiStatusText');
         const wakeUpBtn = document.getElementById('wakeUpBtn');
         let wakingInterval = null;
 
         function setStatus(state, message) {
-            apiStatusBanner.className = 'api-status-banner ' + state;
+            apiStatusBanner.className = 'nav-status-pill ' + state;
             apiStatusText.textContent = message;
-            wakeUpBtn.style.display = (state === 'offline') ? 'inline-block' : 'none';
+            wakeUpBtn.style.display = (state === 'offline' || state === 'waking') ? 'inline-block' : 'none';
         }
 
         async function checkModelStatus() {
@@ -888,59 +884,49 @@
                 const resp = await fetch('/api/v1/model-status');
                 const data = await resp.json();
                 if (data.status === 'online') {
-                    setStatus('online', 'AI Model Ready');
+                    setStatus('online', 'API Online');
                     return true;
                 } else {
-                    setStatus('offline', 'AI Model Offline — free tier is sleeping');
+                    setStatus('offline', 'API Sleeping');
                     return false;
                 }
             } catch {
-                setStatus('offline', 'Cannot reach server');
+                setStatus('offline', 'Disconnected');
                 return false;
             }
         }
 
         async function wakeUpModel() {
             if (wakingInterval) return;
-            setStatus('waking', 'Warming up AI model… this can take 30-60 seconds');
-            wakeUpBtn.style.display = 'inline-block';
+            setStatus('waking', 'Waking...');
             wakeUpBtn.disabled = true;
-            wakeUpBtn.textContent = 'Waking up…';
+            wakeUpBtn.textContent = '...';
 
             let attempts = 0;
-            const maxAttempts = 18; // 18 × 5s = 90s max
-
             wakingInterval = setInterval(async () => {
                 attempts++;
                 const online = await checkModelStatusSilent();
                 if (online) {
                     clearInterval(wakingInterval);
                     wakingInterval = null;
-                    setStatus('online', 'AI Model Ready ✓');
+                    setStatus('online', 'API Online');
                     wakeUpBtn.disabled = false;
-                    wakeUpBtn.textContent = 'Wake Up AI';
-                } else if (attempts >= maxAttempts) {
+                    wakeUpBtn.textContent = 'Wake Up';
+                } else if (attempts >= 18) {
                     clearInterval(wakingInterval);
                     wakingInterval = null;
-                    setStatus('offline', 'AI Model did not respond — try again later');
+                    setStatus('offline', 'Timeout');
                     wakeUpBtn.disabled = false;
-                    wakeUpBtn.textContent = 'Retry Wake Up';
-                    wakeUpBtn.style.display = 'inline-block';
+                    wakeUpBtn.textContent = 'Retry';
                 }
             }, 5000);
         }
 
         async function checkModelStatusSilent() {
-            try {
-                const resp = await fetch('/api/v1/model-status');
-                const data = await resp.json();
-                return data.status === 'online';
-            } catch {
-                return false;
-            }
+            try { return (await (await fetch('/api/v1/model-status')).json()).status === 'online'; } 
+            catch { return false; }
         }
 
-        // Check on page load
         checkModelStatus();
     </script>
 </body>
